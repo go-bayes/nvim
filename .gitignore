@@ -1,0 +1,14 @@
+# Lazy plugin directory
+lazy-lock.json
+
+# Temporary files
+*.swp
+*.swo
+*~
+
+# Test files (optional - remove if you want to track them)
+test.R
+test.qmd
+
+# macOS
+.DS_Store
