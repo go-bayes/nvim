@@ -159,6 +159,12 @@ require("lazy").setup({
             local new_line = indent .. "# " .. string.rep("-", 60) .. " ----"
             vim.api.nvim_set_current_line(new_line)
           end, { buffer = true, desc = "Insert section comment" })
+          
+          -- enable markdown-style sentence navigation
+          vim.bo.formatoptions = vim.bo.formatoptions .. "t"
+          vim.bo.textwidth = 80
+          vim.wo.linebreak = true
+          vim.wo.wrap = true
         end,
       })
     end,
@@ -278,13 +284,13 @@ require("lazy").setup({
     end,
   },
 
-  -- colour scheme
-  {
-    "folke/tokyonight.nvim",
-    config = function()
-      vim.cmd("colorscheme tokyonight-night")
-    end,
-  },
+  -- colour scheme (disabled for terminal compatibility)
+  -- {
+  --   "folke/tokyonight.nvim",
+  --   config = function()
+  --     vim.cmd("colorscheme tokyonight-night")
+  --   end,
+  -- },
 })
 
 -- open R in a right-hand vertical split when editing R / Quarto
@@ -413,6 +419,7 @@ end
 -- project-specific shortcuts (based on your directory listing)
 vim.keymap.set("n", "<leader>gm", navigate_to_project("margot", "Go to margot project"), { desc = "Go to margot project" })
 vim.keymap.set("n", "<leader>ge", navigate_to_project("epic-models", "Go to epic-models project"), { desc = "Go to epic-models project" })
+vim.keymap.set("n", "<leader>gE", navigate_to_project("epic-pubs", "Go to epic-pubs project"), { desc = "Go to epic-pubs project" })
 vim.keymap.set("n", "<leader>gb", navigate_to_project("boilerplate", "Go to boilerplate project"), { desc = "Go to boilerplate project" })
 vim.keymap.set("n", "<leader>gl", navigate_to_project("letters", "Go to letters project"), { desc = "Go to letters project" })
 vim.keymap.set("n", "<leader>gp", navigate_to_project("templates", "Go to templates project"), { desc = "Go to templates project" })
