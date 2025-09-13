@@ -9,15 +9,15 @@ return {
     config = function()
       require("quarto").setup({
         lspFeatures = {
-          enabled = true,
-          chunks = "curly", -- 'curly' or 'all'
-          languages = { "r", "python", "julia", "bash", "html" },
+          enabled = false, -- Completely disable to prevent R conflicts
+          chunks = "none",
+          languages = {},
           diagnostics = {
-            enabled = true,
-            triggers = { "BufWritePost" },
+            enabled = false,
+            triggers = {},
           },
           completion = {
-            enabled = true,
+            enabled = false,
           },
         },
         keymap = {
@@ -27,18 +27,15 @@ return {
           references = "gr",
           format = "<leader>gf",
         },
+        -- Disable codeRunner hooks to avoid requiring molten/slime.
+        -- We'll rely on iron.nvim for executing code and provide chunk motions.
         codeRunner = {
-          enabled = true,
-          default_method = "molten", -- 'molten' or 'slime'
-          ft_runners = {
-            python = "molten",
-            r = "slime",
-          },
+          enabled = false,
           never_run = { "yaml" },
         },
       })
     end,
-    ft = { "quarto" },
+    event = "VeryLazy",
     keys = {
       { "<leader>qa", ":QuartoActivate<cr>", desc = "quarto activate" },
       { "<leader>qp", ":lua require'quarto'.quartoPreview()<cr>", desc = "quarto preview" },
@@ -57,7 +54,6 @@ return {
   {
     "jmbuhr/otter.nvim",
     dependencies = {
-      "hrsh7th/nvim-cmp",
       "neovim/nvim-lspconfig",
       "nvim-treesitter/nvim-treesitter",
     },
@@ -94,26 +90,13 @@ return {
           default_path = nil, -- will auto-detect from YAML frontmatter  
         }
       })
-      
-      -- Add to cmp sources for nvim-cmp (fallback)
+      -- Add to cmp sources when nvim-cmp is present
       local ok_cmp, cmp = pcall(require, "cmp")
-      if ok_cmp then
-        local config = cmp.get_config()
-        table.insert(config.sources, { name = "cmp_pandoc" })
-        cmp.setup(config)
-      end
-      
-      -- Add to blink.cmp sources (primary completion engine)
-      local ok_blink, blink = pcall(require, "blink.cmp")
-      if ok_blink then
-        local sources = blink.get_config().sources
-        if sources and sources.providers then
-          sources.providers.cmp_pandoc = {
-            name = "cmp_pandoc",
-            module = "cmp_pandoc",
-          }
-          table.insert(sources.default, "cmp_pandoc")
-        end
+      if ok_cmp and cmp and type(cmp.get_config) == "function" then
+        local cfg = cmp.get_config()
+        cfg.sources = cfg.sources or {}
+        table.insert(cfg.sources, { name = "cmp_pandoc" })
+        cmp.setup(cfg)
       end
     end,
   },

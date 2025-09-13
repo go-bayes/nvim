@@ -22,6 +22,14 @@ return {
         stdin = true,
       }
       
+      -- format on save for R-related filetypes (uses styler)
+      opts.format_on_save = function(bufnr)
+        local ft = vim.bo[bufnr].filetype
+        if ft == "r" or ft == "rmd" or ft == "qmd" or ft == "quarto" then
+          return { lsp_fallback = false, timeout_ms = 3000 }
+        end
+      end
+
       return opts
     end,
   },
