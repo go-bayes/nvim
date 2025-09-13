@@ -90,3 +90,19 @@ git push -u origin main
 Updating
 - Update plugins: `:Lazy sync`
 - Update R packages as needed; re‑enable diagnostics when stable if desired.
+
+SSH key helper and bootstrap
+- Generate + add a GitHub SSH key and configure keychain:
+
+```
+cd ~/.config/nvim
+./scripts/setup_github_ssh.sh your@email
+# Then paste the copied public key into GitHub → Settings → SSH and GPG keys
+ssh -T git@github.com
+```
+
+- Bootstrap this config on a fresh machine (clones repo and symlinks to ~/.config/nvim):
+
+```
+./scripts/bootstrap.sh git@github.com:<you>/nvim.git
+```
