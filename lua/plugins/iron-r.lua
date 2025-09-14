@@ -36,23 +36,23 @@ return {
         repl_definition = {
           r = {
             command = r_cmd,
-            format = require("iron.fts.common").bracketed_paste_python, -- better multi-line paste handling
+            format = require("iron.fts.common").bracketed_paste, -- use standard bracketed paste
           },
           quarto = {
             command = r_cmd,
-            format = require("iron.fts.common").bracketed_paste_python,
+            format = require("iron.fts.common").bracketed_paste,
           },
           qmd = {
             command = r_cmd,
-            format = require("iron.fts.common").bracketed_paste_python,
+            format = require("iron.fts.common").bracketed_paste,
           },
           rmd = {
             command = r_cmd,
-            format = require("iron.fts.common").bracketed_paste_python,
+            format = require("iron.fts.common").bracketed_paste,
           },
           markdown = {
             command = r_cmd,
-            format = require("iron.fts.common").bracketed_paste_python,
+            format = require("iron.fts.common").bracketed_paste,
           },
         },
         -- Provide both vertical-right and horizontal-bottom split modes
