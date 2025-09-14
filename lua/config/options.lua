@@ -2,6 +2,25 @@
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 -- Add any additional options here
 
+-- enable system clipboard integration (allows pasting outside nvim)
+vim.opt.clipboard = "unnamedplus"
+
+-- ensure clipboard works on macOS
+if vim.fn.has("mac") == 1 or vim.fn.has("macunix") == 1 then
+  vim.g.clipboard = {
+    name = "macOS-clipboard",
+    copy = {
+      ["+"] = "pbcopy",
+      ["*"] = "pbcopy",
+    },
+    paste = {
+      ["+"] = "pbpaste",
+      ["*"] = "pbpaste",
+    },
+    cache_enabled = 0,
+  }
+end
+
 -- disable cursor line highlighting (fixes white line selection issue)
 vim.opt.cursorline = false
 

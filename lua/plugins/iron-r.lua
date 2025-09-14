@@ -34,11 +34,26 @@ return {
       config = {
         scratch_repl = false,
         repl_definition = {
-          r = { command = r_cmd },
-          quarto = { command = r_cmd },
-          qmd = { command = r_cmd },
-          rmd = { command = r_cmd },
-          markdown = { command = r_cmd },
+          r = {
+            command = r_cmd,
+            format = require("iron.fts.common").bracketed_paste_python, -- better multi-line paste handling
+          },
+          quarto = {
+            command = r_cmd,
+            format = require("iron.fts.common").bracketed_paste_python,
+          },
+          qmd = {
+            command = r_cmd,
+            format = require("iron.fts.common").bracketed_paste_python,
+          },
+          rmd = {
+            command = r_cmd,
+            format = require("iron.fts.common").bracketed_paste_python,
+          },
+          markdown = {
+            command = r_cmd,
+            format = require("iron.fts.common").bracketed_paste_python,
+          },
         },
         -- Provide both vertical-right and horizontal-bottom split modes
         repl_open_cmd = {
@@ -59,10 +74,16 @@ return {
         send_line = "<space>sl",
         send_until_cursor = "<space>su",
         send_paragraph = "<space>sp",
+        -- Mark operations (useful for repeated execution)
+        send_mark = "<space>sm",
+        mark_motion = "<space>mc",
+        mark_visual = "<space>mc",
+        remove_mark = "<space>md",
+        -- Control operations
         cr = "<space>s<cr>",
-        interrupt = "<space>s<space>",
-        exit = "<space>sq",
-        clear = "<space>cl",
+        interrupt = "<space>s<space>",  -- interrupt running R code
+        exit = "<space>sq",              -- quit R session
+        clear = "<space>cl",             -- clear REPL screen
       },
       highlight = { italic = true },
     }

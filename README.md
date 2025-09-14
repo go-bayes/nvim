@@ -39,6 +39,8 @@ Key Mappings (essentials)
   - `<space>rv` / `<space>rb`: open/toggle REPL right/bottom
   - `<space>rr`: restart REPL, `<space>rf`: focus, `<space>rh`: hide
   - `<space>sl`: send line, `<space>sc`: send motion/visual, `<space>sp`: send paragraph, `<space>sf`: send file
+  - `<space>sm`: send mark, `<space>mc`: mark motion/visual, `<space>md`: remove mark
+  - `<space>s<space>`: interrupt R, `<space>sq`: quit R, `<space>cl`: clear REPL
   - In terminal: `<space>rp` jumps back to previous (source) window, `Esc` exits terminal mode
 
 - Quarto / Markdown
@@ -48,6 +50,11 @@ Key Mappings (essentials)
 
 - R operators
   - Insert mode: `jj` → ` <- `, `kk` → ` |> `
+
+- Clipboard (macOS)
+  - `<space>cc`: copy selection/line to system clipboard (use ⌘V to paste anywhere)
+  - `<space>y`: yank to system clipboard, `<space>Y`: yank line to clipboard
+  - `<space>p` / `<space>P`: paste from system clipboard
 
 - Section headers (RStudio‑style and more)
   - Normal: `<leader>r1` / `r2` / `r3` → `#/##/### Title ----` with tidy spacing, cursor enters insert
