@@ -4,8 +4,6 @@
 return {
   "Vigemus/iron.nvim",
   main = "iron.core",
-  -- Load eagerly to ensure keymaps are available without guessing filetype
-  event = "VeryLazy",
   ft = { "r", "rmd", "quarto", "qmd" },
   cmd = { "IronRepl", "IronReplHere", "IronRestart", "IronSend", "IronFocus", "IronHide" },
   keys = {

@@ -1,3 +1,5 @@
+pcall(require, "config.r_repl")
+
 -- Autocmds are automatically loaded on the VeryLazy event
 -- Default autocmds that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
 --
@@ -37,16 +39,20 @@ vim.api.nvim_create_autocmd("TermOpen", {
   end,
 })
 
--- Conservative format-on-the-fly for R-related buffers using conform.nvim + styler
-vim.api.nvim_create_autocmd({ "CursorHold", "InsertLeave" }, {
+-- Trigger completion immediately after typing `$` in R buffers (helps data frame column hints)
+vim.api.nvim_create_autocmd("TextChangedI", {
   pattern = { "*.R", "*.r", "*.qmd", "*.Rmd", "*.rmd" },
   callback = function()
-    local ok, conform = pcall(require, "conform")
-    if not ok then return end
-    -- Only run if filetype is R-like and buffer is modifiable
-    local ft = vim.bo.filetype
-    if ft == "r" or ft == "qmd" or ft == "rmd" or ft == "quarto" then
-      conform.format({ async = true, lsp_fallback = false, timeout_ms = 2000 })
-    end
+    local ok, blink = pcall(require, "blink.cmp")
+    if not ok or not blink or blink.is_visible() then return end
+
+    local cursor = vim.api.nvim_win_get_cursor(0)
+    local col = cursor[2]
+    if col <= 0 then return end
+
+    local line = vim.api.nvim_get_current_line()
+    if col > #line then return end
+    local char = line:sub(col, col)
+    if char == "$" then blink.show() end
   end,
 })

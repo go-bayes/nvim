@@ -9,15 +9,15 @@ return {
     config = function()
       require("quarto").setup({
         lspFeatures = {
-          enabled = false, -- Completely disable to prevent R conflicts
-          chunks = "none",
-          languages = {},
+          enabled = true,
+          chunks = "treesitter",
+          languages = { "r", "python", "bash", "lua" },
           diagnostics = {
-            enabled = false,
-            triggers = {},
+            enabled = true,
+            triggers = { "BufWritePost" },
           },
           completion = {
-            enabled = false,
+            enabled = true,
           },
         },
         keymap = {
