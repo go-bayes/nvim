@@ -1,5 +1,23 @@
 pcall(require, "config.r_repl")
 
+-- Ensure autoformat stays enabled in R-related buffers
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "r", "rmd", "qmd", "quarto" },
+  callback = function()
+    vim.b.autoformat = true
+  end,
+})
+
+-- Force conform.nvim formatting on save for R-related buffers
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = { "*.R", "*.r", "*.qmd", "*.Rmd", "*.rmd" },
+  callback = function(event)
+    local ok, conform = pcall(require, "conform")
+    if not ok then return end
+    conform.format({ bufnr = event.buf, async = false, lsp_fallback = false })
+  end,
+})
+
 -- Autocmds are automatically loaded on the VeryLazy event
 -- Default autocmds that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
 --
