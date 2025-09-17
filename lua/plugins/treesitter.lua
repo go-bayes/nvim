@@ -8,9 +8,14 @@ return {
         ensure_installed = {
           "r",
           "markdown",
-          "markdown_inline", 
+          "markdown_inline",
           "query",
           "lua",
+          -- Elixir
+          "elixir",
+          "heex",
+          "eex",
+          -- Core
           "vim",
           "vimdoc",
           "python",
