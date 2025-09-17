@@ -8,6 +8,14 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- Show raw fenced code (no conceal) in Quarto/Markdown buffers
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "quarto", "markdown", "rmd", "qmd" },
+  callback = function()
+    vim.opt_local.conceallevel = 0
+  end,
+})
+
 -- Force conform.nvim formatting on save for R-related buffers
 vim.api.nvim_create_autocmd("BufWritePre", {
   pattern = { "*.R", "*.r", "*.qmd", "*.Rmd", "*.rmd" },
