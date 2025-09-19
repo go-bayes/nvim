@@ -65,6 +65,17 @@ vim.api.nvim_create_autocmd("TermOpen", {
   end,
 })
 
+-- Mirror unnamed register to system clipboard so plain yanks work everywhere
+vim.api.nvim_create_autocmd("TextYankPost", {
+  callback = function()
+    if vim.v.event.operator ~= 'y' or vim.v.event.regname ~= '' then return end
+    local text = vim.fn.getreg('"')
+    local regtype = vim.fn.getregtype('"')
+    vim.fn.setreg('+', text, regtype)
+    vim.fn.setreg('*', text, regtype)
+  end,
+})
+
 -- Trigger completion immediately after typing `$` in R buffers (helps data frame column hints)
 vim.api.nvim_create_autocmd("TextChangedI", {
   pattern = { "*.R", "*.r", "*.qmd", "*.Rmd", "*.rmd" },

@@ -4,6 +4,14 @@ local function get_line(lnum)
   return (vim.api.nvim_buf_get_lines(0, lnum - 1, lnum, false)[1]) or ""
 end
 
+local function find_chunk_bounds_at(line)
+  local cur = vim.api.nvim_win_get_cursor(0)
+  vim.api.nvim_win_set_cursor(0, { line, 0 })
+  local s, e, lang = M.find_chunk_bounds()
+  vim.api.nvim_win_set_cursor(0, cur)
+  return s, e, lang
+end
+
 -- Find the current fenced code chunk bounds and language
 -- Returns: start_lnum, end_lnum, lang (or nils if not in a chunk)
 function M.find_chunk_bounds()
@@ -91,6 +99,34 @@ function M.send_paragraph_in_chunk()
   local ok, iron = pcall(require, "iron.core")
   if not ok then return end
   iron.send("r", lines)
+end
+
+function M.send_selection_in_chunk()
+  local mode = vim.api.nvim_get_mode().mode
+  local prefix = mode:sub(1, 1)
+  if prefix ~= 'v' and prefix ~= 'V' and prefix ~= string.char(22) then return end
+
+  local start_line = vim.fn.getpos("'<")[2]
+  local end_line = vim.fn.getpos("'>")[2]
+  if start_line == 0 or end_line == 0 then return end
+
+  local s1, e1, lang1 = find_chunk_bounds_at(start_line)
+  if not s1 or not e1 or not lang1 or lang1:lower() ~= "r" then return end
+  local s2, e2, lang2 = find_chunk_bounds_at(end_line)
+  if s2 ~= s1 or e2 ~= e1 or not lang2 or lang2:lower() ~= "r" then return end
+
+  local first = math.max(math.min(start_line, end_line), s1 + 1)
+  local last = math.min(math.max(start_line, end_line), e1 - 1)
+  if last < first then return end
+
+  local lines = vim.api.nvim_buf_get_lines(0, first - 1, last, false)
+  if not lines or #lines == 0 then return end
+
+  local ok, iron = pcall(require, "iron.core")
+  if not ok then return end
+  iron.send("r", lines)
+
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
 end
 
 function M.goto_next_chunk()
