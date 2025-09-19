@@ -7,21 +7,29 @@ return {
     "mason-lspconfig.nvim",
     opts = function(_, opts)
       opts.ensure_installed = opts.ensure_installed or {}
-      if not vim.tbl_contains(opts.ensure_installed, "nextls") then
-        table.insert(opts.ensure_installed, "nextls")
+      local ensure = opts.ensure_installed
+      local function add(name)
+        if not vim.tbl_contains(ensure, name) then
+          table.insert(ensure, name)
+        end
       end
+      add("nextls")
+      add("texlab")
+      add("ltex")
     end,
   },
 
   -- Configure Next LS via lspconfig (managed by LazyVim)
   {
     "neovim/nvim-lspconfig",
-    opts = {
-      servers = {
-        nextls = {},
-        -- Explicitly disable elixirls so both don't attach
-        elixirls = { enabled = false },
-      },
-    },
+    opts = function(_, opts)
+      opts.servers = opts.servers or {}
+      opts.servers.nextls = opts.servers.nextls or {}
+      opts.servers.elixirls = opts.servers.elixirls or { enabled = false }
+      opts.servers.texlab = opts.servers.texlab or {}
+      opts.servers.ltex = opts.servers.ltex or {
+        filetypes = { "tex", "plaintex", "markdown", "qmd" },
+      }
+    end,
   },
 }

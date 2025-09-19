@@ -21,6 +21,8 @@ return {
           "python",
           "bash",
           "yaml",
+          "latex",
+          "bibtex",
         },
         
         -- Install parsers synchronously (only applied to `ensure_installed`)
