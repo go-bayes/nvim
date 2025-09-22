@@ -1,0 +1,156 @@
+-- comprehensive blink configuration for r support
+-- works with neovim 0.11+ and lazyvim
+return {
+  {
+    "saghen/blink.cmp",
+    lazy = false, -- load immediately for better reliability
+    dependencies = {
+      "rafamadriz/friendly-snippets",
+    },
+    version = "v0.*", -- use stable version
+    event = "InsertEnter",
+    opts = {
+      -- keymap with explicit bindings
+      keymap = {
+        ["<C-space>"] = { "show" },
+        ["<C-e>"] = { "hide" },
+        ["<CR>"] = { "accept", "fallback" },
+        ["<Tab>"] = { "select_next", "fallback" },
+        ["<S-Tab>"] = { "select_prev", "fallback" },
+        ["<C-n>"] = { "select_next", "fallback" },
+        ["<C-p>"] = { "select_prev", "fallback" },
+        ["<C-y>"] = { "select_and_accept" },
+        ["<C-b>"] = { "scroll_documentation_up", "fallback" },
+        ["<C-f>"] = { "scroll_documentation_down", "fallback" },
+      },
+
+      -- appearance settings
+      appearance = {
+        use_nvim_cmp_as_default = false,
+        nerd_font_variant = "mono",
+      },
+
+      -- sources configuration
+      sources = {
+        -- set default providers
+        default = { "lsp", "path", "snippets", "buffer" },
+        providers = {
+          lsp = {
+            name = "LSP",
+            enabled = true,
+            module = "blink.cmp.sources.lsp",
+            score_offset = 1000, -- highest priority for lsp
+          },
+          path = {
+            name = "Path",
+            enabled = true,
+            module = "blink.cmp.sources.path",
+            score_offset = 3,
+          },
+          snippets = {
+            name = "Snippets",
+            enabled = true,
+            module = "blink.cmp.sources.snippets",
+            score_offset = -3,
+          },
+          buffer = {
+            name = "Buffer",
+            enabled = true,
+            module = "blink.cmp.sources.buffer",
+            score_offset = -5,
+          },
+        },
+      },
+
+      -- completion behavior
+      completion = {
+        -- critical: configure trigger properly
+        trigger = {
+          -- show on every keystroke after trigger character
+          show_on_trigger_character = true,
+          -- list of characters that trigger completion
+        },
+
+        -- auto show menu
+        menu = {
+          enabled = true,
+          auto_show = true,
+          border = "rounded",
+        },
+
+        -- documentation window
+        documentation = {
+          auto_show = true,
+          auto_show_delay_ms = 100,
+          window = {
+            border = "rounded",
+          },
+        },
+
+        -- accept behavior
+        accept = {
+          auto_brackets = {
+            enabled = true,
+          },
+        },
+
+        -- list behavior
+        list = {
+          selection = {
+            preselect = true,
+            auto_insert = true,
+          },
+        },
+      },
+
+      -- signature help (optional but useful for r)
+      signature = {
+        enabled = true,
+        window = {
+          border = "rounded",
+        },
+      },
+    },
+
+    config = function(_, opts)
+      require("blink.cmp").setup(opts)
+
+      -- additional autocmd specifically for r files
+      -- this ensures $ always triggers completion even if blink misses it
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "r", "rmd", "quarto", "qmd" },
+        callback = function()
+          -- set buffer-local option for completion
+          vim.bo.omnifunc = "v:lua.vim.lsp.omnifunc"
+
+          -- create buffer-local autocmd for $ trigger
+          vim.api.nvim_create_autocmd("InsertCharPre", {
+            buffer = 0,
+            callback = function()
+              if vim.v.char == "$" then
+                vim.defer_fn(function()
+                  -- check if we have an active lsp client
+                  local clients = vim.lsp.get_active_clients({ bufnr = 0 })
+                  if #clients > 0 then
+                    local blink = require("blink.cmp")
+                    if blink and blink.show and not (blink.is_visible and blink.is_visible()) then
+                      blink.show()
+                    end
+                  end
+                end, 50) -- small delay to let the character be inserted
+              end
+            end,
+          })
+        end,
+      })
+
+      -- log configuration for debugging
+      vim.defer_fn(function()
+        local config = require("blink.cmp.config").config
+        if config.completion and config.completion.trigger and config.completion.trigger.show_on_trigger_character then
+          vim.notify("Blink: trigger chars enabled", vim.log.levels.INFO)
+        end
+      end, 1000)
+    end,
+  },
+}

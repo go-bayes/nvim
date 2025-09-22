@@ -1,0 +1,65 @@
+-- force blink to trigger on $ for r files
+return {
+  {
+    "saghen/blink.cmp",
+    config = function(_, opts)
+      -- set up autocmd to force completion after $
+      vim.api.nvim_create_autocmd("InsertCharPre", {
+        pattern = { "*.R", "*.r", "*.Rmd", "*.rmd", "*.qmd" },
+        callback = function(ev)
+          if vim.v.char == "$" then
+            vim.schedule(function()
+              local ok, blink = pcall(require, "blink.cmp")
+              if ok and blink.show then
+                -- allow the $ to be inserted first
+                vim.defer_fn(function()
+                  if not blink.is_visible or not blink.is_visible() then
+                    blink.show()
+                  end
+                end, 10)
+              end
+            end)
+          end
+        end,
+        desc = "Trigger blink completion after $ in R files",
+      })
+
+      -- also use textchangedi for backup
+      vim.api.nvim_create_autocmd("TextChangedI", {
+        pattern = { "*.R", "*.r", "*.Rmd", "*.rmd", "*.qmd" },
+        callback = function()
+          local line = vim.api.nvim_get_current_line()
+          local col = vim.fn.col('.') - 1
+
+          if col > 0 and line:sub(col, col) == "$" then
+            local ok, blink = pcall(require, "blink.cmp")
+            if ok and blink.show then
+              vim.schedule(function()
+                if not blink.is_visible or not blink.is_visible() then
+                  blink.show()
+                end
+              end)
+            end
+          end
+        end,
+        desc = "Backup trigger for $ completion in R",
+      })
+
+      -- also add a manual keymap for forcing completion
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "r", "rmd", "quarto", "qmd" },
+        callback = function(ev)
+          vim.keymap.set("i", "$", function()
+            vim.api.nvim_feedkeys("$", "n", false)
+            vim.schedule(function()
+              local ok, blink = pcall(require, "blink.cmp")
+              if ok and blink.show then
+                blink.show()
+              end
+            end)
+          end, { buffer = ev.buf, desc = "Insert $ and trigger completion" })
+        end,
+      })
+    end,
+  },
+}

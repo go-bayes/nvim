@@ -1,44 +1,68 @@
--- Explicit configuration for the R language server
--- Uses the recommended invocation via base R, not mason-managed binaries
+-- explicit configuration for the r language server
+-- uses the recommended invocation via base r, not mason-managed binaries
 
 return {
   "neovim/nvim-lspconfig",
   config = function()
     local lspconfig = require("lspconfig")
+
+    -- build capabilities with blink.cmp support
     local capabilities = vim.lsp.protocol.make_client_capabilities()
-    capabilities.textDocument = capabilities.textDocument or {}
-    capabilities.textDocument.completion = capabilities.textDocument.completion or {}
-    capabilities.textDocument.completion.completionItem =
-      capabilities.textDocument.completion.completionItem or {}
-    capabilities.textDocument.completion.completionItem.snippetSupport = true
-    capabilities.textDocument.completion.completionItem.insertReplaceSupport = true
-    capabilities.textDocument.completion.completionItem.labelDetailsSupport = true
-    capabilities.textDocument.completion.contextSupport = true
+
+    -- check if blink is available and get its capabilities
     local ok_blink, blink = pcall(require, "blink.cmp")
-    if ok_blink and type(blink.get_lsp_capabilities) == "function" then
+    if ok_blink and blink.get_lsp_capabilities then
       capabilities = blink.get_lsp_capabilities(capabilities)
+    else
+      -- fallback: manually set essential completion capabilities
+      capabilities.textDocument = capabilities.textDocument or {}
+      capabilities.textDocument.completion = {
+        dynamicRegistration = false,
+        completionItem = {
+          snippetSupport = true,
+          commitCharactersSupport = true,
+          deprecatedSupport = true,
+          preselectSupport = true,
+          tagSupport = { valueSet = { 1 } },
+          insertReplaceSupport = true,
+          resolveSupport = {
+            properties = { "documentation", "detail", "additionalTextEdits" },
+          },
+          insertTextModeSupport = { valueSet = { 1, 2 } },
+          labelDetailsSupport = true,
+        },
+        contextSupport = true,
+        insertTextMode = 1,
+        completionList = {
+          itemDefaults = {
+            "commitCharacters",
+            "editRange",
+            "insertTextFormat",
+            "insertTextMode",
+          },
+        },
+      }
     end
-    capabilities.textDocument.completion = capabilities.textDocument.completion or {}
-    capabilities.textDocument.completion.completionItem =
-      capabilities.textDocument.completion.completionItem or {}
-    capabilities.textDocument.completion.completionItem.snippetSupport = true
-    capabilities.textDocument.completion.completionItem.insertReplaceSupport = true
-    capabilities.textDocument.completion.completionItem.labelDetailsSupport = true
-    capabilities.textDocument.completion.contextSupport = true
 
     local diag = require("config.r_diagnostics")
 
     lspconfig.r_language_server.setup({
       cmd = {
         "R",
-        "--vanilla",
-        "--quiet",
+        "--no-echo",
+        "--no-restore",
         "--slave",
         "-e",
-        [[options(languageserver.diagnostics = TRUE); languageserver::run()]],
+        "languageserver::run()",
       },
       on_attach = function(client, bufnr)
         diag.on_attach(client, bufnr)
+
+        -- override the completion trigger characters for r language server
+        -- the server doesn't report $ as a trigger, but it does support it
+        if client.server_capabilities.completionProvider then
+          client.server_capabilities.completionProvider.triggerCharacters = { ".", ":", "$", "@", "[", "," }
+        end
       end,
       capabilities = capabilities,
       settings = {
@@ -48,7 +72,19 @@ return {
             suppressPackageStartupMessages = true,
           },
         },
+        r = {
+          lsp = {
+            -- enable rich documentation in completions
+            rich_documentation = true,
+            -- enable snippet support
+            snippet_support = true,
+          },
+        },
       },
+      -- configure specific filetypes
+      filetypes = { "r", "rmd", "quarto", "qmd" },
+      -- set root directory patterns
+      root_dir = lspconfig.util.root_pattern(".git", ".Rproj.user", "DESCRIPTION", "renv.lock", "packrat"),
     })
   end,
 }

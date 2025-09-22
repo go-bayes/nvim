@@ -1,0 +1,38 @@
+-- enhance blink.cmp for r support
+return {
+  {
+    "saghen/blink.cmp",
+    opts = function(_, opts)
+      -- ensure completion.trigger exists
+      opts.completion = opts.completion or {}
+      opts.completion.trigger = opts.completion.trigger or {}
+
+      -- critical: add $ to trigger characters
+      -- blink uses completion.trigger.trigger_characters (not just trigger.completion.trigger_characters)
+      local triggers = opts.completion.trigger.trigger_characters or { ".", ":" }
+
+      -- add r-specific triggers if not already present
+      local r_triggers = { "$", "@", "[" }
+      for _, t in ipairs(r_triggers) do
+        if not vim.tbl_contains(triggers, t) then
+          table.insert(triggers, t)
+        end
+      end
+
+      opts.completion.trigger.trigger_characters = triggers
+      opts.completion.trigger.show_on_trigger_character = true
+
+      -- add custom keymaps while preserving lazyvim defaults
+      opts.keymap = opts.keymap or {}
+      opts.keymap["<C-y>"] = { "select_and_accept" }
+
+      -- ensure lsp has high priority for r files
+      opts.sources = opts.sources or {}
+      opts.sources.providers = opts.sources.providers or {}
+      opts.sources.providers.lsp = opts.sources.providers.lsp or {}
+      opts.sources.providers.lsp.score_offset = 100
+
+      return opts
+    end,
+  },
+}

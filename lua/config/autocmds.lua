@@ -76,20 +76,4 @@ vim.api.nvim_create_autocmd("TextYankPost", {
   end,
 })
 
--- Trigger completion immediately after typing `$` in R buffers (helps data frame column hints)
-vim.api.nvim_create_autocmd("TextChangedI", {
-  pattern = { "*.R", "*.r", "*.qmd", "*.Rmd", "*.rmd" },
-  callback = function()
-    local ok, blink = pcall(require, "blink.cmp")
-    if not ok or not blink or blink.is_visible() then return end
-
-    local cursor = vim.api.nvim_win_get_cursor(0)
-    local col = cursor[2]
-    if col <= 0 then return end
-
-    local line = vim.api.nvim_get_current_line()
-    if col > #line then return end
-    local char = line:sub(col, col)
-    if char == "$" then blink.show() end
-  end,
-})
+-- note: $ trigger for r is now handled in blink-complete.lua plugin to avoid conflicts

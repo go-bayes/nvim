@@ -17,8 +17,17 @@ function M.ensure_running(opts)
   if ft ~= "r" then return end
   if opts and opts.force then started[ft] = nil end
   if started[ft] then return end
-  started[ft] = true
-  iron.repl_for(ft)
+  local repl_ok, err = pcall(function()
+    iron.repl_for(ft)
+  end)
+  if repl_ok then
+    started[ft] = true
+  else
+    started[ft] = nil
+    vim.schedule(function()
+      vim.notify_once("Failed to start R REPL (" .. tostring(err) .. ")", vim.log.levels.WARN, { title = "R REPL" })
+    end)
+  end
 end
 
 vim.api.nvim_create_autocmd("BufEnter", {
