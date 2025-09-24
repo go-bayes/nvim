@@ -1,6 +1,6 @@
 -- Keymaps are automatically loaded on the VeryLazy event
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
--- Add any additional keymaps here
+local pins = require("config.pins")
 
 -- system clipboard integration (explicit)
 -- use these when regular yank doesn't copy to system clipboard
@@ -101,3 +101,20 @@ end, { noremap = true, silent = true, desc = 'Toggle maximize current window' })
 -- Quick toggle between current and previous window
 vim.keymap.set('n', '<leader>ww', '<C-w>p', { noremap = true, silent = true, desc = 'Focus previous window' })
 vim.keymap.set('t', '<leader>ww', [[<C-\><C-n><C-w>p]], { noremap = true, silent = true, desc = 'Focus previous window' })
+
+
+-- Simple pinned file navigation (Harpoon alternative)
+vim.keymap.set('n', '<leader>ha', pins.add, { noremap = true, silent = true, desc = 'Pin current file' })
+vim.keymap.set('n', '<leader>hh', pins.menu, { noremap = true, silent = true, desc = 'Show pinned files' })
+vim.keymap.set('n', '<leader>h1', function()
+  pins.select(1)
+end, { noremap = true, silent = true, desc = 'Go to pin 1' })
+vim.keymap.set('n', '<leader>h2', function()
+  pins.select(2)
+end, { noremap = true, silent = true, desc = 'Go to pin 2' })
+vim.keymap.set('n', '<leader>h3', function()
+  pins.select(3)
+end, { noremap = true, silent = true, desc = 'Go to pin 3' })
+vim.keymap.set('n', '<leader>h4', function()
+  pins.select(4)
+end, { noremap = true, silent = true, desc = 'Go to pin 4' })

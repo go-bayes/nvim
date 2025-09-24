@@ -2,6 +2,8 @@
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 -- Add any additional options here
 
+vim.opt.number = true
+
 -- enable system clipboard integration (allows pasting outside nvim)
 vim.opt.clipboard = "unnamedplus"
 
@@ -31,4 +33,3 @@ if os.getenv("TERM_PROGRAM") == "Apple_Terminal" then
 else
   vim.opt.termguicolors = true
 end
-
