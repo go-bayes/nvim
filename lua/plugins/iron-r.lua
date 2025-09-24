@@ -17,6 +17,7 @@ return {
     { "<space>sf", mode = { "n" }, desc = "Iron send file (load)" },
     { "<space>su", mode = { "n" }, desc = "Iron send until cursor (load)" },
     { "<space>sp", mode = { "n" }, desc = "Iron send paragraph (load)" },
+    { "<space>s<space>", mode = { "n" }, desc = "Iron interrupt (load)" },
   },
   opts = function()
     -- Choose radian if available, otherwise fallback to base R

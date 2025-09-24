@@ -63,3 +63,41 @@ vim.keymap.set('t', '<Esc>', [[<C-"><C-n>]], { noremap = true, silent = true, de
 -- Jump back to previous window (source) from anywhere
 vim.keymap.set('n', '<leader>rp', '<C-w>p', { noremap = true, silent = true, desc = 'Previous window' })
 vim.keymap.set('t', '<leader>rp', [[<C-\\><C-n><C-w>p]], { noremap = true, silent = true, desc = 'Previous window' })
+
+
+-- Quick wrappers for common R object introspection
+local wrap_word_with = function(expr)
+  local esc = vim.api.nvim_replace_termcodes('<Esc>', true, false, true)
+  local keys = 'yiwciw' .. expr .. esc
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(keys, true, false, true), 'n', false)
+end
+
+vim.keymap.set('n', '<leader>cn', function()
+  wrap_word_with('colnames(<C-r>0)')
+end, { noremap = true, silent = true, desc = 'Wrap word with colnames()' })
+
+vim.keymap.set('n', '<leader>nn', function()
+  wrap_word_with('names(<C-r>0)')
+end, { noremap = true, silent = true, desc = 'Wrap word with names()' })
+
+
+-- Toggle maximize for the current window and restore layout on repeat
+vim.keymap.set('n', '<leader>wm', function()
+  local current_win = vim.api.nvim_get_current_win()
+  local restore = vim.t._max_restore
+
+  if restore and vim.api.nvim_win_is_valid(restore.win) and restore.win == current_win then
+    vim.cmd(restore.cmd)
+    vim.t._max_restore = nil
+    return
+  end
+
+  vim.t._max_restore = { win = current_win, cmd = vim.fn.winrestcmd() }
+  vim.cmd('wincmd |')
+  vim.cmd('wincmd _')
+end, { noremap = true, silent = true, desc = 'Toggle maximize current window' })
+
+
+-- Quick toggle between current and previous window
+vim.keymap.set('n', '<leader>ww', '<C-w>p', { noremap = true, silent = true, desc = 'Focus previous window' })
+vim.keymap.set('t', '<leader>ww', [[<C-\><C-n><C-w>p]], { noremap = true, silent = true, desc = 'Focus previous window' })
