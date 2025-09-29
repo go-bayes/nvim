@@ -81,6 +81,17 @@ vim.keymap.set('n', '<leader>nn', function()
 end, { noremap = true, silent = true, desc = 'Wrap word with names()' })
 
 
+-- Alias keybindings for iron.nvim to match VS Code (ssp for send paragraph)
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "r", "rmd", "quarto", "qmd" },
+  callback = function()
+    -- Create aliases that trigger Iron's lazy loading and then execute the command
+    vim.keymap.set('n', '<leader>ssl', '<leader>sl', { remap = true, desc = 'Send line (ssl alias)' })
+    vim.keymap.set({'n', 'v'}, '<leader>ssc', '<leader>sc', { remap = true, desc = 'Send selection (ssc alias)' })
+    vim.keymap.set('n', '<leader>ssp', '<leader>sp', { remap = true, desc = 'Send paragraph (ssp alias)' })
+  end,
+})
+
 -- Toggle maximize for the current window and restore layout on repeat
 vim.keymap.set('n', '<leader>wm', function()
   local current_win = vim.api.nvim_get_current_win()
