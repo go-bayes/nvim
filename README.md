@@ -1,8 +1,8 @@
 # Neovim Config — R + Quarto, Blink, Iron, TokyoNight
 
-Purpose‑built Neovim configuration for R and Quarto, built on LazyVim but trimmed and tuned for a fast, stable workflow in Kitty.
+Neovim configuration for R and Quarto, built on LazyVim but trimmed and tuned for a fast, stable workflow to work with Kitty/tmux.
 
-Highlights
+Highlight
 - Completion: Blink (LazyVim default) for low‑latency LSP completion.
 - REPL: iron.nvim with radian→R fallback, right/bottom split toggles.
 - Quarto: quarto‑nvim + otter.nvim (LSP inside R chunks), chunk motions and chunk/paragraph send.
@@ -14,7 +14,6 @@ Highlights
 Requirements
 - Neovim 0.10+
 - R (with packages): languageserver, styler, callr, lintr (optional)
-- Optional: radian (recommended REPL)
 - Terminal: Kitty (recommended; config tuned for it)
 
 Install
@@ -35,17 +34,11 @@ Install
 
 Key Mappings (essentials)
 - REPL
-  - `<space>rs`: toggle REPL (defaults to right split)
-  - `<space>rv` / `<space>rb`: open/toggle REPL right/bottom
-  - `<space>rr`: restart REPL, `<space>rf`: focus, `<space>rh`: hide
   - `<space>sl`: send line, `<space>sc`: send motion/visual, `<space>sp`: send paragraph, `<space>sf`: send file
   - `<space>sm`: send mark, `<space>mc`: mark motion/visual, `<space>md`: remove mark
   - `<space>s<space>`: interrupt R, `<space>sq`: quit R, `<space>cl`: clear REPL
-  - In terminal: `<space>rp` jumps back to previous (source) window, `Esc` exits terminal mode
 
 - Quarto / Markdown
-  - `]]` / `[[`: next/previous code chunk
-  - `<leader>rc`: run current R chunk
   - In prose buffers, `<space>sl` and `<space>sp` send only when cursor is inside an R chunk
 
 - R operators
@@ -96,7 +89,6 @@ git push -u origin main
 
 Updating
 - Update plugins: `:Lazy sync`
-- Update R packages as needed; re‑enable diagnostics when stable if desired.
 
 SSH key helper and bootstrap
 - Generate + add a GitHub SSH key and configure keychain:
