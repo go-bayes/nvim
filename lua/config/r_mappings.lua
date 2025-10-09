@@ -12,6 +12,7 @@ vim.api.nvim_create_autocmd("FileType", {
     -- Ensure no stale send-line/selection mappings remain; let iron.nvim provide them
     pcall(vim.keymap.del, "n", "<space>sl", { buffer = bufnr })
     pcall(vim.keymap.del, "v", "<space>sc", { buffer = bufnr })
+
   end,
   desc = "R key mappings",
 })

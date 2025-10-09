@@ -33,3 +33,7 @@ if os.getenv("TERM_PROGRAM") == "Apple_Terminal" then
 else
   vim.opt.termguicolors = true
 end
+
+if vim.fn.exists("&guifont") == 1 then
+  vim.opt.guifont = "Menlo"
+end

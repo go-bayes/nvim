@@ -117,6 +117,22 @@ vim.keymap.set('t', '<leader>ww', [[<C-\><C-n><C-w>p]], { noremap = true, silent
 -- Simple pinned file navigation (Harpoon alternative)
 vim.keymap.set('n', '<leader>ha', pins.add, { noremap = true, silent = true, desc = 'Pin current file' })
 vim.keymap.set('n', '<leader>hh', pins.menu, { noremap = true, silent = true, desc = 'Show pinned files' })
+vim.keymap.set('n', '<leader>hr', function()
+  local path = vim.api.nvim_buf_get_name(0)
+  if path == '' then
+    vim.notify('Buffer has no name', vim.log.levels.WARN, { title = 'Pins' })
+    return
+  end
+
+  for idx, item in ipairs(pins.list()) do
+    if item and item.path == path then
+      pins.remove(idx)
+      return
+    end
+  end
+
+  vim.notify('Current file is not pinned', vim.log.levels.WARN, { title = 'Pins' })
+end, { noremap = true, silent = true, desc = 'Remove current file pin' })
 vim.keymap.set('n', '<leader>h1', function()
   pins.select(1)
 end, { noremap = true, silent = true, desc = 'Go to pin 1' })

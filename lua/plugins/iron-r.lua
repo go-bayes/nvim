@@ -54,17 +54,17 @@ return {
             format = require("iron.fts.common").bracketed_paste,
           },
         },
-        -- Provide both vertical-right and horizontal-bottom split modes
+        -- Provide both horizontal-bottom and vertical-right split modes
         repl_open_cmd = {
-          view.split.vertical.botright("40%"), -- cmd_1: right split 40% width
-          view.split.botright("30%"),          -- cmd_2: bottom split 30% height
+          view.split.botright("40%"),          -- cmd_1: bottom split 40% height (default)
+          view.split.vertical.botright("40%"), -- cmd_2: right split 40% width
         },
       },
       keymaps = {
         -- Toggle/shape controls
         toggle_repl = "<space>rs",
-        toggle_repl_with_cmd_1 = "<space>rv", -- right vertical
-        toggle_repl_with_cmd_2 = "<space>rb", -- bottom horizontal
+        toggle_repl_with_cmd_1 = "<space>rb", -- bottom horizontal
+        toggle_repl_with_cmd_2 = "<space>rv", -- right vertical
         restart_repl = "<space>rr",
         -- Sending
         send_motion = "<space>sc",
