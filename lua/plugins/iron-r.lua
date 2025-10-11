@@ -4,7 +4,7 @@
 return {
   "Vigemus/iron.nvim",
   main = "iron.core",
-  ft = { "r", "rmd", "quarto", "qmd" },
+  ft = { "r", "rmd", "quarto", "qmd", "python" },
   cmd = { "IronRepl", "IronReplHere", "IronRestart", "IronSend", "IronFocus", "IronHide" },
   keys = {
     { "<space>rs", "<cmd>IronRepl<cr>", desc = "Start REPL" },
@@ -23,8 +23,25 @@ return {
     -- Choose radian if available, otherwise fallback to base R
     local r_cmd
     if vim.fn.executable("radian") == 1 then
-      r_cmd = { "radian" }
-    else
+      r_cmd = { vim.fn.exepath("radian") }
+    elseif vim.fn.executable("R") == 1 then
+      local r_path = vim.fn.exepath("R")
+      if r_path ~= nil and r_path ~= "" then
+        r_cmd = { r_path, "--quiet", "--no-save" }
+      end
+    end
+
+    if not r_cmd then
+      for _, candidate in ipairs({ "/opt/homebrew/bin/R", "/usr/local/bin/R" }) do
+        if vim.fn.executable(candidate) == 1 then
+          r_cmd = { candidate, "--quiet", "--no-save" }
+          break
+        end
+      end
+    end
+
+    if not r_cmd then
+      vim.notify("iron.nvim: R executable not found on PATH", vim.log.levels.WARN)
       r_cmd = { "R", "--quiet", "--no-save" }
     end
 
@@ -36,6 +53,20 @@ return {
           r = {
             command = r_cmd,
             format = require("iron.fts.common").bracketed_paste, -- use standard bracketed paste
+          },
+          python = {
+            command = { "bash", "-c", [[
+if [ -x .venv/bin/ipython ]; then
+  exec .venv/bin/ipython --no-autoindent
+elif [ -x venv/bin/ipython ]; then
+  exec venv/bin/ipython --no-autoindent
+elif command -v ipython >/dev/null 2>&1; then
+  exec ipython --no-autoindent
+else
+  exec python3
+fi
+]] },
+            format = require("iron.fts.common").bracketed_paste,
           },
           quarto = {
             command = r_cmd,

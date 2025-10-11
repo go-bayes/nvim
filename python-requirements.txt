@@ -1,0 +1,6 @@
+# python libraries required for neovim
+# note: CLI tools (ipython, pyright, ruff) should be installed with pipx
+# install this with: python3 -m pip install --user -r python-requirements.txt
+
+# neovim python provider - required for python integration
+pynvim>=0.5.0

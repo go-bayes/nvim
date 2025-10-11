@@ -10,6 +10,7 @@ return {
       opts.formatters_by_ft.qmd = { "quarto_styler" }
       opts.formatters_by_ft.quarto = { "quarto_styler" }
       opts.formatters_by_ft.elixir = { "mix_format" }
+      opts.formatters_by_ft.python = { "ruff_format", "ruff_organize_imports" }
 
       -- define custom formatters
       opts.formatters = opts.formatters or {}
@@ -49,7 +50,7 @@ return {
         condition = function() return vim.fn.executable("mix") == 1 end,
       }
 
-      -- format on save for the relevant filetypes (uses styler/quarto/mix formatters)
+      -- format on save for the relevant filetypes (uses styler/quarto/mix/ruff formatters)
       opts.format_on_save = function(bufnr)
         local ft = vim.bo[bufnr].filetype
         if
@@ -63,6 +64,9 @@ return {
           return { lsp_fallback = false, timeout_ms = 3000 }
         end
         if ft == "elixir" then
+          return { lsp_fallback = false, timeout_ms = 2000 }
+        end
+        if ft == "python" then
           return { lsp_fallback = false, timeout_ms = 2000 }
         end
       end
