@@ -1,5 +1,57 @@
 return {
   {
+    "catppuccin/nvim",
+    name = "catppuccin",
+    lazy = false,
+    priority = 1100,
+    opts = {
+      flavour = "mocha",
+      background = { light = "latte", dark = "mocha" },
+      integrations = { cmp = true, gitsigns = true, telescope = true, treesitter = true },
+    },
+    config = function(_, opts)
+      local catppuccin = require("catppuccin")
+      catppuccin.setup(opts)
+
+      local flavours = { latte = true, frappe = true, macchiato = true, mocha = true }
+      local function apply(flavour, silent)
+        flavour = flavour or opts.flavour or "mocha"
+        if not flavours[flavour] then
+          vim.notify("Unknown Catppuccin flavour: " .. flavour, vim.log.levels.ERROR)
+          return
+        end
+
+        if vim.g.colors_name == "catppuccin" and vim.g.catppuccin_flavour_current == flavour then
+          vim.g.active_colorscheme = "catppuccin"
+          if not silent then vim.notify("Catppuccin " .. flavour .. " already active") end
+          return
+        end
+
+        vim.g.catppuccin_flavour = flavour
+        vim.cmd.colorscheme("catppuccin-" .. flavour)
+        vim.g.catppuccin_flavour_current = flavour
+        vim.g.active_colorscheme = "catppuccin"
+        if not silent then vim.notify("Catppuccin → " .. flavour) end
+      end
+
+      apply(nil, true)
+
+      vim.api.nvim_create_user_command("CatppuccinTheme", function(params)
+        local flavour = params.args ~= "" and params.args or nil
+        apply(flavour)
+      end, {
+        nargs = "?",
+        complete = function()
+          return { "latte", "frappe", "macchiato", "mocha" }
+        end,
+      })
+
+      vim.keymap.set("n", "<leader>uc", function()
+        apply("mocha")
+      end, { desc = "Switch to Catppuccin (mocha)" })
+    end,
+  },
+  {
     "shaunsingh/nord.nvim",
     lazy = false,
     priority = 1000,
@@ -17,8 +69,6 @@ return {
         vim.g.active_colorscheme = "nord"
         if not silent then vim.notify("Nord enabled") end
       end
-
-      apply_nord({ silent = true })
 
       vim.api.nvim_create_user_command("NordTheme", function()
         apply_nord()
