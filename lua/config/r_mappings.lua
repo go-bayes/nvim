@@ -1,4 +1,3 @@
--- R-specific mappings and Iron integration
 local M = {}
 
 vim.api.nvim_create_autocmd("FileType", {

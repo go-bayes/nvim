@@ -8,10 +8,18 @@ return {
       flavour = "mocha",
       background = { light = "latte", dark = "mocha" },
       integrations = { cmp = true, gitsigns = true, telescope = true, treesitter = true },
+      custom_highlights = function(colors)
+        return {
+          WinSeparator = { fg = colors.surface2, bg = colors.base },
+        }
+      end,
     },
     config = function(_, opts)
       local catppuccin = require("catppuccin")
       catppuccin.setup(opts)
+
+      -- Ensure a visible separator character between window splits
+      vim.opt.fillchars:append({ vert = "│" })
 
       local flavours = { latte = true, frappe = true, macchiato = true, mocha = true }
       local function apply(flavour, silent)

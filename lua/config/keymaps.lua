@@ -25,6 +25,9 @@ end, { noremap = true, silent = true, expr = true, desc = 'Clear search highligh
 -- Yank/paste tweaks
 vim.keymap.set('n', 'Y', 'y$', { noremap = true, silent = true, desc = 'Yank to end of line' })
 vim.keymap.set('v', 'p', '"_dP', { noremap = true, silent = true, desc = 'Paste without overwriting register' })
+-- Create blank lines without leaving normal mode
+vim.keymap.set('n', 'go', 'o<Esc>', { noremap = true, silent = true, desc = 'Blank line below (stay normal)' })
+vim.keymap.set('n', 'gO', 'O<Esc>', { noremap = true, silent = true, desc = 'Blank line above (stay normal)' })
 
 -- macOS-style clipboard shortcuts (require clipboard=unnamedplus)
 vim.keymap.set({ 'n', 'v' }, '<D-c>', '"+y', { noremap = true, silent = true, desc = 'Copy to system clipboard' })
@@ -57,6 +60,7 @@ vim.keymap.set({ 'n', 'v' }, 'j', 'gj', { noremap = true, silent = true, desc = 
 vim.keymap.set({ 'n', 'v' }, 'k', 'gk', { noremap = true, silent = true, desc = 'Up (wrapped)' })
 vim.keymap.set({ 'n', 'v' }, '$', 'g$', { noremap = true, silent = true, desc = 'End of wrapped line' })
 vim.keymap.set({ 'n', 'v' }, '0', 'g0', { noremap = true, silent = true, desc = 'Start of wrapped line' })
+vim.keymap.set({ 'n', 'v' }, '00', '$', { noremap = true, silent = true, desc = 'End of line (00)' })
 
 -- Convenience: exit terminal mode with ESC
 vim.keymap.set('t', '<Esc>', [[<C-"><C-n>]], { noremap = true, silent = true, desc = 'Exit terminal mode' })
@@ -66,19 +70,80 @@ vim.keymap.set('t', '<leader>rp', [[<C-\\><C-n><C-w>p]], { noremap = true, silen
 
 
 -- Quick wrappers for common R object introspection
-local wrap_word_with = function(expr)
-  local esc = vim.api.nvim_replace_termcodes('<Esc>', true, false, true)
-  local keys = 'yiwciw' .. expr .. esc
-  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(keys, true, false, true), 'n', false)
+local function wrap_word_with(format_string, opts)
+  opts = opts or {}
+  local buf = vim.api.nvim_get_current_buf()
+  local cursor = vim.api.nvim_win_get_cursor(0)
+  local row = cursor[1] - 1
+  local col0 = cursor[2]
+  local line = vim.api.nvim_buf_get_lines(buf, row, row + 1, false)[1] or ""
+  if line == "" then
+    return
+  end
+
+  local function is_allowed(char)
+    return char:match("[%w_.$]") ~= nil
+  end
+
+  local col1 = col0 + 1
+  local len = #line
+  if col1 > len then col1 = len end
+  if col1 < 1 then col1 = 1 end
+
+  if not is_allowed(line:sub(col1, col1)) then
+    if col1 > 1 and is_allowed(line:sub(col1 - 1, col1 - 1)) then
+      col1 = col1 - 1
+    elseif col1 < len and is_allowed(line:sub(col1 + 1, col1 + 1)) then
+      col1 = col1 + 1
+    else
+      return
+    end
+  end
+
+  local left = col1
+  while left > 1 and is_allowed(line:sub(left - 1, left - 1)) do
+    left = left - 1
+  end
+
+  local right = col1
+  while right < len and is_allowed(line:sub(right + 1, right + 1)) do
+    right = right + 1
+  end
+
+  local object = line:sub(left, right)
+  if object == "" then
+    return
+  end
+  local indent = line:match("^%s*") or ""
+
+  local replacement = string.format(format_string, object)
+
+  vim.api.nvim_buf_set_text(buf, row, left - 1, row, right, { replacement })
+
+  if opts.append_original then
+    vim.api.nvim_buf_set_lines(buf, row + 1, row + 1, false, { indent .. object })
+  end
+
+  vim.api.nvim_win_set_cursor(0, { cursor[1], left - 1 + #replacement })
+
+  return object
 end
 
 vim.keymap.set('n', '<leader>cn', function()
-  wrap_word_with('colnames(<C-r>0)')
+  wrap_word_with('colnames(%s)')
 end, { noremap = true, silent = true, desc = 'Wrap word with colnames()' })
 
 vim.keymap.set('n', '<leader>nn', function()
-  wrap_word_with('names(<C-r>0)')
+  wrap_word_with('names(%s)')
 end, { noremap = true, silent = true, desc = 'Wrap word with names()' })
+
+vim.keymap.set('n', '<leader>ci1', function()
+  wrap_word_with('str(%s, max.level = 1)', { append_original = true })
+end, { noremap = true, silent = true, desc = 'Wrap word with str(..., max.level = 1)' })
+
+vim.keymap.set('n', '<leader>ci2', function()
+  wrap_word_with('str(%s, max.level = 2)', { append_original = true })
+end, { noremap = true, silent = true, desc = 'Wrap word with str(..., max.level = 2)' })
 
 
 -- Alias keybindings for iron.nvim to match VS Code (ssp for send paragraph)
