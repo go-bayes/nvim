@@ -118,4 +118,81 @@ fi
       highlight = { italic = true },
     }
   end,
+  config = function(_, opts)
+    local iron = require("iron.core")
+    local marks = require("iron.marks")
+    iron.setup(opts)
+
+    local function move_cursor_to_next_nonblank(start_line)
+      local bufnr = vim.api.nvim_get_current_buf()
+      local total = vim.api.nvim_buf_line_count(bufnr)
+      if total == 0 then
+        return
+      end
+
+      local function is_chunk_boundary(line)
+        if line == "" then
+          return false
+        end
+
+        local ft = vim.bo.filetype
+        if ft == "quarto" or ft == "qmd" or ft == "markdown" then
+          return line:match("^%s*```")
+        end
+
+        return false
+      end
+
+      local target = math.min(math.max(start_line, 1), total)
+      for line_nr = target, total do
+        local text = vim.api.nvim_buf_get_lines(bufnr, line_nr - 1, line_nr, false)[1] or ""
+        if text:match("%S") and not is_chunk_boundary(text) then
+          local indent = text:match("^%s*") or ""
+          vim.api.nvim_win_set_cursor(0, { line_nr, #indent })
+          return
+        end
+      end
+
+      vim.api.nvim_win_set_cursor(0, { total, 0 })
+    end
+
+    local function advance_after_send(fallback_start, delay)
+      -- iron.send_paragraph defers execution, so allow an optional delay before fetching marks
+      local retries = 2
+      local function move()
+        local region = marks.get()
+        if region then
+          local next_line = (region.to_line or region.from_line) + 2
+          move_cursor_to_next_nonblank(next_line)
+        elseif retries > 0 then
+          retries = retries - 1
+          vim.defer_fn(move, 60)
+          return
+        elseif fallback_start then
+          move_cursor_to_next_nonblank(fallback_start)
+        end
+      end
+
+      if delay and delay > 0 then
+        vim.defer_fn(move, delay)
+      else
+        move()
+      end
+    end
+
+    local function send_line_and_advance()
+      local current_line = vim.api.nvim_win_get_cursor(0)[1]
+      iron.send_line()
+      advance_after_send(current_line + 1, 0)
+    end
+
+    local function send_paragraph_and_advance()
+      local current_line = vim.api.nvim_win_get_cursor(0)[1]
+      iron.send_paragraph()
+      advance_after_send(current_line + 1, 160)
+    end
+
+    vim.keymap.set("n", "<leader>sl", send_line_and_advance, { desc = "Send line and advance", silent = true })
+    vim.keymap.set("n", "<leader>sp", send_paragraph_and_advance, { desc = "Send paragraph and advance", silent = true })
+  end,
 }

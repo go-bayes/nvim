@@ -54,13 +54,11 @@ end, { noremap = true, silent = true, desc = 'Save file' })
 vim.keymap.set('n', '<leader>w', '<cmd>w<CR>', { noremap = true, silent = true, desc = 'Write buffer' })
 vim.keymap.set('n', '<leader>qq', '<cmd>q<CR>', { noremap = true, silent = true, desc = 'Quit window' })
 vim.keymap.set('n', '<leader>e', '<cmd>Lex 30<CR>', { noremap = true, silent = true, desc = 'Open file explorer' })
-
 -- Movement over wrapped lines (behave like screen lines)
 vim.keymap.set({ 'n', 'v' }, 'j', 'gj', { noremap = true, silent = true, desc = 'Down (wrapped)' })
 vim.keymap.set({ 'n', 'v' }, 'k', 'gk', { noremap = true, silent = true, desc = 'Up (wrapped)' })
 vim.keymap.set({ 'n', 'v' }, '$', 'g$', { noremap = true, silent = true, desc = 'End of wrapped line' })
 vim.keymap.set({ 'n', 'v' }, '0', 'g0', { noremap = true, silent = true, desc = 'Start of wrapped line' })
-vim.keymap.set({ 'n', 'v' }, '00', '$', { noremap = true, silent = true, desc = 'End of line (00)' })
 
 -- Convenience: exit terminal mode with ESC
 vim.keymap.set('t', '<Esc>', [[<C-"><C-n>]], { noremap = true, silent = true, desc = 'Exit terminal mode' })
