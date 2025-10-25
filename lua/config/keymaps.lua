@@ -60,11 +60,11 @@ vim.keymap.set({ 'n', 'v' }, 'k', 'gk', { noremap = true, silent = true, desc = 
 vim.keymap.set({ 'n', 'v' }, '$', 'g$', { noremap = true, silent = true, desc = 'End of wrapped line' })
 vim.keymap.set({ 'n', 'v' }, '0', 'g0', { noremap = true, silent = true, desc = 'Start of wrapped line' })
 
--- Convenience: exit terminal mode with ESC
-vim.keymap.set('t', '<Esc>', [[<C-"><C-n>]], { noremap = true, silent = true, desc = 'Exit terminal mode' })
+vim.keymap.set('t', '<Esc>', [[<C-\><C-n>]], { noremap = true, silent = true, nowait = true, desc = 'Exit terminal mode' })
+vim.keymap.set('t', '<C-g>', [[<C-\><C-n>]], { noremap = true, silent = true, nowait = true, desc = 'Exit terminal mode (Ctrl-G)' })
 -- Jump back to previous window (source) from anywhere
 vim.keymap.set('n', '<leader>rp', '<C-w>p', { noremap = true, silent = true, desc = 'Previous window' })
-vim.keymap.set('t', '<leader>rp', [[<C-\\><C-n><C-w>p]], { noremap = true, silent = true, desc = 'Previous window' })
+vim.keymap.set('t', '<leader>rp', [[<C-\><C-n><C-w>p]], { noremap = true, silent = true, desc = 'Previous window' })
 
 
 -- Quick wrappers for common R object introspection
@@ -208,3 +208,21 @@ end, { noremap = true, silent = true, desc = 'Go to pin 3' })
 vim.keymap.set('n', '<leader>h4', function()
   pins.select(4)
 end, { noremap = true, silent = true, desc = 'Go to pin 4' })
+
+
+-- Toggle diagnostics per-buffer
+vim.keymap.set("n", "<leader>dd", function()
+  vim.diagnostic.disable(0)
+end, { noremap = true, silent = true, desc = "Disable diagnostics (buffer)" })
+
+vim.keymap.set("n", "<leader>de", function()
+  vim.diagnostic.enable(0)
+end, { noremap = true, silent = true, desc = "Enable diagnostics (buffer)" })
+
+-- silence diagnostics in otter virtual buffers
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+  pattern = { "*.otter.R", "*.otter.*" },
+  callback = function(args)
+    vim.diagnostic.disable(args.buf)
+  end,
+})

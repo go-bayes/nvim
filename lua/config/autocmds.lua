@@ -61,6 +61,13 @@ vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
 vim.api.nvim_create_autocmd("TermOpen", {
   pattern = { "term://*" },
   callback = function()
+    local root = vim.fn.getcwd()
+    if root and root ~= "" then
+      local job = vim.b.terminal_job_id
+      if job then
+        vim.api.nvim_chan_send(job, "cd " .. vim.fn.shellescape(root) .. "\n")
+      end
+    end
     vim.cmd("startinsert")
   end,
 })

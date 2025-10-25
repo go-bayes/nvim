@@ -36,7 +36,22 @@ return {
     end,
     keys = {
       { "<leader>qa", ":QuartoActivate<cr>", desc = "quarto activate" },
-      { "<leader>qp", ":lua require'quarto'.quartoPreview()<cr>", desc = "quarto preview" },
+      {
+        "<leader>qp",
+        function()
+          require("quarto").quartoPreview()
+          vim.schedule(function()
+            vim.cmd("stopinsert")
+            local term_buf = vim.b.quartoOutputBuf
+            if term_buf and vim.api.nvim_buf_is_valid(term_buf) then
+              pcall(vim.api.nvim_set_option_value, "buflisted", false, { buf = term_buf })
+              pcall(vim.api.nvim_set_option_value, "swapfile", false, { buf = term_buf })
+              pcall(vim.api.nvim_set_option_value, "filetype", "quarto-preview", { buf = term_buf })
+            end
+          end)
+        end,
+        desc = "quarto preview",
+      },
       { "<leader>qq", ":lua require'quarto'.quartoClosePreview()<cr>", desc = "quarto close" },
       { "<leader>qh", ":QuartoHelp ", desc = "quarto help" },
       { "<leader>qe", ":lua require'otter'.export()<cr>", desc = "quarto export" },
