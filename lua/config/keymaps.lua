@@ -69,6 +69,7 @@ vim.keymap.set({ 'n', 'v' }, 'j', 'gj', { noremap = true, silent = true, desc = 
 vim.keymap.set({ 'n', 'v' }, 'k', 'gk', { noremap = true, silent = true, desc = 'Up (wrapped)' })
 vim.keymap.set({ 'n', 'v' }, '$', 'g$', { noremap = true, silent = true, desc = 'End of wrapped line' })
 vim.keymap.set({ 'n', 'v' }, '0', 'g0', { noremap = true, silent = true, desc = 'Start of wrapped line' })
+vim.keymap.set('n', 'A', 'g$a', { noremap = true, silent = true, desc = 'Append at end of wrapped line' })
 
 vim.keymap.set('t', '<Esc>', [[<C-\><C-n>]], { noremap = true, silent = true, nowait = true, desc = 'Exit terminal mode' })
 vim.keymap.set('t', '<C-g>', [[<C-\><C-n>]], { noremap = true, silent = true, nowait = true, desc = 'Exit terminal mode (Ctrl-G)' })
