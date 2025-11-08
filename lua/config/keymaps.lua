@@ -6,18 +6,17 @@ local pins = require("config.pins")
 -- use these when regular yank doesn't copy to system clipboard
 vim.keymap.set({'n', 'v'}, '<leader>y', '"+y', { noremap = true, silent = true, desc = 'Yank to system clipboard' })
 vim.keymap.set('n', '<leader>Y', '"+Y', { noremap = true, silent = true, desc = 'Yank line to system clipboard' })
--- Swap bindings: use Shift+P for system clipboard paste, and <leader>p for buffer paste
--- System clipboard paste (before) on Shift+P
-vim.keymap.set('n', 'P', '"+P', { noremap = true, silent = true, desc = 'Paste before from system clipboard (no extra space)' })
-vim.keymap.set('v', 'P', '"_d"+P', { noremap = true, silent = true, desc = 'Paste before from system clipboard (keep clipboard)' })
+-- System clipboard paste (after) on Shift+P
+vim.keymap.set('n', 'P', '"+p', { noremap = true, silent = true, desc = 'Paste after from system clipboard (no extra space)' })
+vim.keymap.set('v', 'P', '"_d"+p', { noremap = true, silent = true, desc = 'Paste after from system clipboard (keep clipboard)' })
 
 -- Buffer paste on <leader>p (use yank register 0 to avoid system clipboard)
-vim.keymap.set('n', '<leader>p', '"0P', { noremap = true, silent = true, desc = 'Paste before from yank register (0)' })
+vim.keymap.set('n', '<leader>p', '"0p', { noremap = true, silent = true, desc = 'Paste after from yank register (0)' })
 -- Visual: delete selection to blackhole then paste from yank register 0
-vim.keymap.set('v', '<leader>p', '"_d"0P', { noremap = true, silent = true, desc = 'Paste before from yank register (0)' })
+vim.keymap.set('v', '<leader>p', '"_d"0p', { noremap = true, silent = true, desc = 'Paste after from yank register (0)' })
 
--- Keep optional leader+P as an alternate for system clipboard paste (before)
-vim.keymap.set({ 'n', 'v' }, '<leader>P', '"+P', { noremap = true, silent = true, desc = 'Paste before from system clipboard' })
+-- Keep optional leader+P as an alternate for system clipboard paste (after)
+vim.keymap.set({ 'n', 'v' }, '<leader>P', '"+p', { noremap = true, silent = true, desc = 'Paste after from system clipboard' })
 
 -- direct pbcopy integration (guaranteed to work)
 vim.keymap.set('v', '<leader>cc', ':w !pbcopy<CR><CR>', { noremap = true, silent = true, desc = 'Copy to macOS clipboard (pbcopy)' })

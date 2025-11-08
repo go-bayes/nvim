@@ -26,6 +26,29 @@ vim.api.nvim_create_autocmd("BufWritePre", {
   end,
 })
 
+-- Helper to trim trailing whitespace and blank lines in R buffers
+local function trim_r_buffer(bufnr)
+  if not vim.api.nvim_buf_is_loaded(bufnr) then return end
+  local buf_opts = vim.bo[bufnr]
+  if buf_opts.buftype ~= "" or not buf_opts.modifiable then return end
+  vim.api.nvim_buf_call(bufnr, function()
+    local view = vim.fn.winsaveview()
+    vim.cmd([[%s/\s\+$//e]])
+    local last_line = vim.api.nvim_buf_line_count(0)
+    local last_nonblank = vim.fn.prevnonblank(last_line)
+    if last_nonblank > 0 and last_nonblank < last_line then
+      vim.api.nvim_buf_set_lines(0, last_nonblank, last_line, true, {})
+    end
+    vim.fn.winrestview(view)
+  end)
+end
+
+-- Trim trailing whitespace and blank lines when leaving R-related buffers
+vim.api.nvim_create_autocmd("BufLeave", {
+  pattern = { "*.R", "*.r", "*.qmd", "*.Rmd", "*.rmd" },
+  callback = function(event) trim_r_buffer(event.buf) end,
+})
+
 -- Autocmds are automatically loaded on the VeryLazy event
 -- Default autocmds that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
 --
