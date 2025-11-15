@@ -35,5 +35,5 @@ else
 end
 
 if vim.fn.exists("&guifont") == 1 then
-  vim.opt.guifont = "JetBrainsMono Nerd Font Light:h12"
+  vim.opt.guifont = "JetBrainsMono Nerd Font Light:h14"
 end

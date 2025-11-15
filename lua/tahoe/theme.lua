@@ -232,6 +232,8 @@ function M.apply(opts)
 
   vim.o.background = "dark"
   vim.o.termguicolors = true
+  vim.o.winblend = 0
+  vim.o.pumblend = 0
 
   local highlights = {}
   for _, group in ipairs({
