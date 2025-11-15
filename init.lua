@@ -13,5 +13,6 @@ require("config.lazy")
 -- Custom mappings not tied to plugins
 require("config.r_mappings")
 require("config.python_mappings")
+require("config.python_repl")
 require("config.quarto_chunk_keymaps")
 require("config.r_headers")

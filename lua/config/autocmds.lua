@@ -49,6 +49,16 @@ vim.api.nvim_create_autocmd("BufLeave", {
   callback = function(event) trim_r_buffer(event.buf) end,
 })
 
+-- Keep Python formatting parity with R by running conform (ruff) on save
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = { "*.py" },
+  callback = function(event)
+    local ok, conform = pcall(require, "conform")
+    if not ok then return end
+    conform.format({ bufnr = event.buf, async = false, lsp_fallback = false })
+  end,
+})
+
 -- Autocmds are automatically loaded on the VeryLazy event
 -- Default autocmds that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
 --

@@ -43,6 +43,12 @@ PIPX_VERSION=$(pipx --version)
 echo -e "${GREEN}found pipx:${NC} $PIPX_VERSION"
 echo
 
+PYTHON_BIN=$(command -v python3)
+if [ -z "$PYTHON_BIN" ]; then
+    echo -e "${RED}error: unable to resolve python3 path${NC}"
+    exit 1
+fi
+
 # ensure pipx path is set up
 echo -e "${BLUE}1. ensuring pipx path...${NC}"
 pipx ensurepath --quiet 2>/dev/null || true
@@ -59,16 +65,20 @@ echo
 echo -e "${BLUE}3. installing CLI tools with pipx...${NC}"
 
 echo "   installing ipython..."
-pipx install ipython --force --quiet 2>/dev/null || pipx upgrade ipython --quiet 2>/dev/null
+pipx install ipython --python "$PYTHON_BIN" --force --quiet 2>/dev/null || pipx upgrade ipython --quiet 2>/dev/null
 echo "   ✓ ipython installed"
 
 echo "   installing pyright..."
-pipx install pyright --force --quiet 2>/dev/null || pipx upgrade pyright --quiet 2>/dev/null
+pipx install pyright --python "$PYTHON_BIN" --force --quiet 2>/dev/null || pipx upgrade pyright --quiet 2>/dev/null
 echo "   ✓ pyright installed"
 
 echo "   installing ruff..."
-pipx install ruff --force --quiet 2>/dev/null || pipx upgrade ruff --quiet 2>/dev/null
+pipx install ruff --python "$PYTHON_BIN" --force --quiet 2>/dev/null || pipx upgrade ruff --quiet 2>/dev/null
 echo "   ✓ ruff installed"
+
+echo "   installing uv..."
+pipx install uv --python "$PYTHON_BIN" --force --quiet 2>/dev/null || pipx upgrade uv --quiet 2>/dev/null
+echo "   ✓ uv installed"
 echo
 
 # install libraries with pip
@@ -95,18 +105,26 @@ fi
 
 echo -e "   ${YELLOW}pyright:${NC}"
 if command -v pyright &> /dev/null; then
-    PYRIGHT_VERSION=$(pyright --version 2>&1 | head -1)
-    echo "     ✓ $PYRIGHT_VERSION"
+  PYRIGHT_VERSION=$(pyright --version 2>&1 | head -1)
+  echo "     ✓ $PYRIGHT_VERSION"
 else
-    echo -e "${RED}     ✗ not found${NC}"
+  echo -e "${RED}     ✗ not found${NC}"
 fi
 
 echo -e "   ${YELLOW}ruff:${NC}"
 if command -v ruff &> /dev/null; then
-    RUFF_VERSION=$(ruff --version 2>&1 | head -1)
-    echo "     ✓ $RUFF_VERSION"
+  RUFF_VERSION=$(ruff --version 2>&1 | head -1)
+  echo "     ✓ $RUFF_VERSION"
 else
-    echo -e "${RED}     ✗ not found${NC}"
+  echo -e "${RED}     ✗ not found${NC}"
+fi
+
+echo -e "   ${YELLOW}uv:${NC}"
+if command -v uv &> /dev/null; then
+  UV_VERSION=$(uv --version 2>&1 | head -1)
+  echo "     ✓ $UV_VERSION"
+else
+  echo -e "${RED}     ✗ not found${NC}"
 fi
 
 echo
@@ -116,6 +134,7 @@ echo "neovim python features:"
 echo "  • insert-mode shortcuts: jl (lambda), jd (def), ji (import)"
 echo "  • LSP: pyright for autocomplete and diagnostics"
 echo "  • formatting: ruff (format on save enabled)"
-echo "  • REPL: ipython via iron.nvim"
+echo "  • REPL: ipython via iron.nvim (prefers project-local .venv ipython)"
+echo "  • per-project envs: use 'uv venv .venv' inside python projects"
 echo
 echo "restart neovim to use the updated python environment"
