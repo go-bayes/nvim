@@ -17,14 +17,6 @@ vim.keymap.set("n", "<leader>uH", function()
   apply_tahoe({ silent = false })
 end, { desc = "Switch to Tahoe (Clear Dark)" })
 
-vim.api.nvim_create_autocmd("User", {
-  pattern = "VeryLazy",
-  once = true,
-  callback = function()
-    apply_tahoe({ silent = true })
-  end,
-})
-
 return {
   {
     "catppuccin/nvim",

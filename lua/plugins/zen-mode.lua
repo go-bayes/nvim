@@ -13,7 +13,7 @@ return {
     },
     opts = {
       window = {
-        width = 90,
+        width = 100,
         options = {
           number = false,
           relativenumber = false,
