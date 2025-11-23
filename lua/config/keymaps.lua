@@ -10,10 +10,9 @@ vim.keymap.set('n', '<leader>Y', '"+Y', { noremap = true, silent = true, desc = 
 vim.keymap.set('n', 'P', '"+p', { noremap = true, silent = true, desc = 'Paste after from system clipboard (no extra space)' })
 vim.keymap.set('v', 'P', '"_d"+p', { noremap = true, silent = true, desc = 'Paste after from system clipboard (keep clipboard)' })
 
--- Buffer paste on <leader>p (use yank register 0 to avoid system clipboard)
-vim.keymap.set('n', '<leader>p', '"0p', { noremap = true, silent = true, desc = 'Paste after from yank register (0)' })
--- Visual: delete selection to blackhole then paste from yank register 0
-vim.keymap.set('v', '<leader>p', '"_d"0p', { noremap = true, silent = true, desc = 'Paste after from yank register (0)' })
+-- System clipboard paste on <leader>p (copy then paste while staying in normal mode)
+vim.keymap.set('n', '<leader>p', '"+p', { noremap = true, silent = true, desc = 'Paste after from system clipboard' })
+vim.keymap.set('v', '<leader>p', '"_d"+p', { noremap = true, silent = true, desc = 'Paste after from system clipboard (keep clipboard)' })
 
 -- Keep optional leader+P as an alternate for system clipboard paste (after)
 vim.keymap.set({ 'n', 'v' }, '<leader>P', '"+p', { noremap = true, silent = true, desc = 'Paste after from system clipboard' })

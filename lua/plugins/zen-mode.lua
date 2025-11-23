@@ -13,9 +13,9 @@ return {
     },
     opts = {
       window = {
-        width = 100,
+        width = 80,
         options = {
-          number = false,
+          number = true,
           relativenumber = false,
           signcolumn = "no",
         },
