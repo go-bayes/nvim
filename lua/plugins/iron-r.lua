@@ -52,7 +52,9 @@ return {
         repl_definition = {
           r = {
             command = r_cmd,
-            format = require("iron.fts.common").bracketed_paste, -- use standard bracketed paste
+            -- Some R consoles echo bracketed paste markers like "01~".
+            -- Use plain format to avoid sending those markers.
+            format = require("iron.fts.common").plain,
           },
           python = {
             command = { "bash", "-c", [[

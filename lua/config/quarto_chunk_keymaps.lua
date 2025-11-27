@@ -19,6 +19,12 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.keymap.set("n", "<leader>qt", templates.insert_table_chunk, { buffer = buf, desc = "Insert table chunk" })
     vim.keymap.set("n", "<leader>qc", templates.insert_empty_r_chunk, { buffer = buf, desc = "Insert empty R chunk" })
     vim.keymap.set("n", "<leader>qb", templates.insert_pagebreak, { buffer = buf, desc = "Insert page break" })
+    -- Interrupt the same R session used for chunk sending (avoid spinning up a new Quarto REPL)
+    vim.keymap.set("n", "<space>s<space>", function()
+      local ok, iron = pcall(require, "iron.core")
+      if not ok then return end
+      iron.send("r", string.char(03))
+    end, { buffer = buf, desc = "Interrupt R (chunk REPL)" })
   end,
   desc = "Quarto/Markdown chunk keymaps",
 })

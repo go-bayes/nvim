@@ -21,6 +21,29 @@ vim.keymap.set({ 'n', 'v' }, '<leader>P', '"+p', { noremap = true, silent = true
 vim.keymap.set('v', '<leader>cc', ':w !pbcopy<CR><CR>', { noremap = true, silent = true, desc = 'Copy to macOS clipboard (pbcopy)' })
 vim.keymap.set('n', '<leader>cc', 'V:w !pbcopy<CR><CR>', { noremap = true, silent = true, desc = 'Copy line to macOS clipboard' })
 
+-- Copy current file path to system clipboard
+local function copy_file_path()
+  local path = vim.fn.expand("%:p")
+  if path == "" then
+    vim.notify("Buffer has no file path", vim.log.levels.WARN, { title = "Copy path" })
+    return
+  end
+  vim.fn.setreg("+", path)
+  vim.notify(path, vim.log.levels.INFO, { title = "Copied file path" })
+end
+vim.keymap.set('n', '<leader>cf', copy_file_path, { noremap = true, silent = true, desc = 'Copy file path (abs) to clipboard' })
+
+-- Paste current file path at cursor (avoids register confusion / E78)
+local function paste_file_path()
+  local path = vim.fn.expand("%:p")
+  if path == "" then
+    vim.notify("Buffer has no file path", vim.log.levels.WARN, { title = "Paste file path" })
+    return
+  end
+  vim.api.nvim_put({ path }, "c", true, true)
+end
+vim.keymap.set('n', '<leader>pf', paste_file_path, { noremap = true, silent = true, desc = 'Paste file path at cursor' })
+
 -- Quick escape from insert mode
 vim.keymap.set('i', 'jk', '<Esc>', { noremap = true, silent = true, desc = 'Exit insert mode' })
 
