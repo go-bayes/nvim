@@ -4,6 +4,9 @@
 
 vim.opt.number = true
 
+-- disable swap files
+vim.opt.swapfile = false
+
 -- enable system clipboard integration (allows pasting outside nvim)
 vim.opt.clipboard = "unnamedplus"
 

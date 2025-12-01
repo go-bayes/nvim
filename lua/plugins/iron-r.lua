@@ -188,12 +188,31 @@ fi
       advance_after_send(current_line + 1, 0)
     end
 
+    local function send_source_file()
+      -- Use source() for R scripts so the REPL sees the file just like Rscript/source does
+      local ft = vim.bo.filetype
+      if ft ~= "r" then
+        return iron.send_file()
+      end
+
+      local file = vim.api.nvim_buf_get_name(0)
+      if not file or file == "" then
+        vim.notify("iron.nvim: current buffer has no file to source", vim.log.levels.WARN)
+        return
+      end
+
+      local escaped = file:gsub("\\", "/"):gsub('"', '\\"')
+      iron.send(nil, string.format('source("%s", chdir = TRUE)', escaped))
+      move_cursor_to_next_nonblank(vim.api.nvim_win_get_cursor(0)[1] + 1)
+    end
+
     local function send_paragraph_and_advance()
       local current_line = vim.api.nvim_win_get_cursor(0)[1]
       iron.send_paragraph()
       advance_after_send(current_line + 1, 160)
     end
 
+    vim.keymap.set("n", "<leader>sf", send_source_file, { desc = "Source file in REPL", silent = true })
     vim.keymap.set("n", "<leader>sl", send_line_and_advance, { desc = "Send line and advance", silent = true })
     vim.keymap.set("n", "<leader>sp", send_paragraph_and_advance, { desc = "Send paragraph and advance", silent = true })
   end,
