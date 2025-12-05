@@ -10,6 +10,7 @@ return {
       opts.formatters_by_ft.qmd = { "quarto_styler" }
       opts.formatters_by_ft.quarto = { "quarto_styler" }
       opts.formatters_by_ft.elixir = { "mix_format" }
+      opts.formatters_by_ft.rust = { "rustfmt" }
       opts.formatters_by_ft.python = { "ruff_format", "ruff_organize_imports" }
 
       -- define custom formatters
@@ -67,6 +68,9 @@ return {
           return { lsp_fallback = false, timeout_ms = 2000 }
         end
         if ft == "python" then
+          return { lsp_fallback = false, timeout_ms = 2000 }
+        end
+        if ft == "rust" then
           return { lsp_fallback = false, timeout_ms = 2000 }
         end
       end
