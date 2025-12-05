@@ -2,6 +2,10 @@ return {
   {
     "lervag/vimtex",
     ft = { "tex", "plaintex", "latex" },
+    keys = {
+      { "<leader>ll", "<cmd>VimtexCompile<cr>", desc = "Vimtex compile" },
+      { "<leader>lv", "<cmd>VimtexView<cr>", desc = "Vimtex view PDF" },
+    },
     init = function()
       vim.g.vimtex_view_method = "skim"
       vim.g.vimtex_compiler_method = "latexmk"

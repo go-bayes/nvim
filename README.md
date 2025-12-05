@@ -12,14 +12,4 @@ Clone into `~/.config/nvim`, start Neovim, and run `:Lazy sync` once to fetch th
 - Nord stays available on `<leader>un` / `:NordTheme`.
 - TokyoNight cycles with `<leader>ut`; toggle transparency with `<leader>uT`.
 
-All theme tooling belongs to this Neovim repo—manage it with `git` inside `~/.config/nvim` rather than `yadm`.
-
-## Dotfiles backup
-
-The repo also tracks non-Neovim config that pairs with this setup. To install the AeroSpace keybinding config on a new machine, run:
-
-```bash
-./scripts/link-dotfiles.sh
-```
-
-That will symlink `dotfiles/aerospace/.aerospace.toml` into `~/.aerospace.toml`. Reload AeroSpace (`aerospace reload-config`) to apply the shortcuts.
+All theme tooling belongs to this Neovim repo—manage it with `git` inside `~/.config/nvim` rather than `yadm`. Non-Neovim dotfiles (e.g., AeroSpace) now live in your `yadm` repo instead of here.
