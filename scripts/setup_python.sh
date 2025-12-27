@@ -1,140 +1,94 @@
 #!/bin/bash
-# setup script for python packages required by neovim
-# uses pipx for CLI tools and pip for libraries
+# Modernised Neovim Python setup using uv (2025)
+# Optimized for macOS (ARM64) and high-performance causal inference.
 
-set -e  # exit on error
+set -e  # Exit immediately if a command fails.
 
-# colours for output
-RED='\033[0;31m'
+# Define colours for clear diagnostic feedback.
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # no colour
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m'
 
-echo -e "${GREEN}neovim python setup${NC}"
-echo "================================"
-echo
-echo "strategy:"
-echo "  • pipx for CLI tools (ipython, pyright, ruff)"
-echo "  • pip --user for libraries (pynvim)"
-echo "  • pipx ensurepath to ensure neovim can find executables"
+echo -e "${GREEN}Neovim Python Tooling Setup (uv-native)${NC}"
+echo "==========================================="
 echo
 
-# check if python3 is available
-if ! command -v python3 &> /dev/null; then
+# Dependencies
+if ! command -v python3 >/dev/null 2>&1; then
     echo -e "${RED}error: python3 not found${NC}"
-    echo "please install python3 first"
+    echo "install with: brew install python"
     exit 1
 fi
 
-# get python version
-PYTHON_VERSION=$(python3 --version)
-echo -e "${GREEN}found python:${NC} $PYTHON_VERSION"
-
-# check for pipx
-if ! command -v pipx &> /dev/null; then
-    echo -e "${RED}error: pipx not found${NC}"
-    echo "please install pipx first:"
-    echo "  brew install pipx"
+if ! command -v uv >/dev/null 2>&1; then
+    echo -e "${RED}error: uv not found${NC}"
+    echo "install with: brew install uv"
     exit 1
 fi
 
-PIPX_VERSION=$(pipx --version)
-echo -e "${GREEN}found pipx:${NC} $PIPX_VERSION"
+PYTHON_BIN="$(command -v python3)"
+
+echo -e "${GREEN}found python:${NC} $(python3 --version)"
+echo -e "${GREEN}found uv:${NC} $(uv --version)"
 echo
 
-PYTHON_BIN=$(command -v python3)
-if [ -z "$PYTHON_BIN" ]; then
-    echo -e "${RED}error: unable to resolve python3 path${NC}"
-    exit 1
+# Ensure uv tool shims are reachable
+if ! printf '%s' "$PATH" | tr ':' '\n' | grep -qx "$HOME/.local/bin"; then
+    export PATH="$HOME/.local/bin:$PATH"
+    echo -e "${YELLOW}note:${NC} added ~/.local/bin to PATH for this run"
+    echo "      add it in your shell config to make it permanent"
+    echo
 fi
 
-# ensure pipx path is set up
-echo -e "${BLUE}1. ensuring pipx path...${NC}"
-pipx ensurepath --quiet 2>/dev/null || true
-echo "   ✓ pipx path configured"
+# 1. Provision CLI tools globally via uv tool.
+echo -e "${BLUE}1. Installing/Updating global CLI tools...${NC}"
+
+# Force re-installation to ensure alignment with the active uv configuration.
+uv tool install pyright --force --quiet
+uv tool install ruff --force --quiet
+uv tool install ipython --force --quiet
+
+echo "   ✓ pyright (LSP), ruff (Linter), and ipython (REPL) updated."
 echo
 
-# upgrade pip first
-echo -e "${BLUE}2. upgrading pip...${NC}"
-python3 -m pip install --upgrade pip --user --quiet --break-system-packages 2>/dev/null || python3 -m pip install --upgrade pip --user --quiet
-echo "   ✓ pip upgraded"
+# 2. Handle the Neovim Python bridge (pynvim).
+# This uses the system python3 to provide the host for plugins.
+echo -e "${BLUE}2. Updating pynvim bridge for Neovim...${NC}"
+uv pip install --python "$PYTHON_BIN" --user --upgrade --break-system-packages pynvim 2>/dev/null || \
+    uv pip install --python "$PYTHON_BIN" --user --upgrade pynvim
+
+echo "   ✓ pynvim host updated using $(python3 --version)."
 echo
 
-# install CLI tools with pipx
-echo -e "${BLUE}3. installing CLI tools with pipx...${NC}"
+# 3. Verification of paths and versions.
+echo -e "${BLUE}3. Finalising verification...${NC}"
 
-echo "   installing ipython..."
-pipx install ipython --python "$PYTHON_BIN" --force --quiet 2>/dev/null || pipx upgrade ipython --quiet 2>/dev/null
-echo "   ✓ ipython installed"
+echo -e "   ${YELLOW}uv path:${NC}      $(command -v uv)"
+echo -e "   ${YELLOW}python:${NC}       $(python3 --version)"
 
-echo "   installing pyright..."
-pipx install pyright --python "$PYTHON_BIN" --force --quiet 2>/dev/null || pipx upgrade pyright --quiet 2>/dev/null
-echo "   ✓ pyright installed"
-
-echo "   installing ruff..."
-pipx install ruff --python "$PYTHON_BIN" --force --quiet 2>/dev/null || pipx upgrade ruff --quiet 2>/dev/null
-echo "   ✓ ruff installed"
-
-echo "   installing uv..."
-pipx install uv --python "$PYTHON_BIN" --force --quiet 2>/dev/null || pipx upgrade uv --quiet 2>/dev/null
-echo "   ✓ uv installed"
-echo
-
-# install libraries with pip
-echo -e "${BLUE}4. installing libraries with pip...${NC}"
-
-echo "   installing pynvim (user packages)..."
-python3 -m pip install --upgrade --user pynvim --quiet --break-system-packages
-echo "   ✓ pynvim installed"
-echo
-
-# verify installation
-echo -e "${BLUE}5. verifying installation...${NC}"
-
-echo -e "   ${YELLOW}pynvim:${NC}"
-python3 -c "import pynvim; print(f'     ✓ version {pynvim.__version__}')" 2>/dev/null || echo -e "${RED}     ✗ not found${NC}"
-
-echo -e "   ${YELLOW}ipython:${NC}"
-if command -v ipython &> /dev/null; then
-    IPYTHON_VERSION=$(ipython --version)
-    echo "     ✓ version $IPYTHON_VERSION"
+if command -v pyright >/dev/null 2>&1; then
+    echo -e "   ${YELLOW}pyright:${NC}      $(pyright --version | head -n 1)"
 else
-    echo -e "${RED}     ✗ not found${NC}"
+    echo -e "   ${YELLOW}pyright:${NC}      not found"
 fi
 
-echo -e "   ${YELLOW}pyright:${NC}"
-if command -v pyright &> /dev/null; then
-  PYRIGHT_VERSION=$(pyright --version 2>&1 | head -1)
-  echo "     ✓ $PYRIGHT_VERSION"
+if command -v ruff >/dev/null 2>&1; then
+    echo -e "   ${YELLOW}ruff version:${NC} $(ruff --version)"
 else
-  echo -e "${RED}     ✗ not found${NC}"
+    echo -e "   ${YELLOW}ruff version:${NC} not found"
 fi
 
-echo -e "   ${YELLOW}ruff:${NC}"
-if command -v ruff &> /dev/null; then
-  RUFF_VERSION=$(ruff --version 2>&1 | head -1)
-  echo "     ✓ $RUFF_VERSION"
+if command -v ipython >/dev/null 2>&1; then
+    echo -e "   ${YELLOW}ipython:${NC}      $(ipython --version)"
 else
-  echo -e "${RED}     ✗ not found${NC}"
+    echo -e "   ${YELLOW}ipython:${NC}      not found"
 fi
 
-echo -e "   ${YELLOW}uv:${NC}"
-if command -v uv &> /dev/null; then
-  UV_VERSION=$(uv --version 2>&1 | head -1)
-  echo "     ✓ $UV_VERSION"
-else
-  echo -e "${RED}     ✗ not found${NC}"
-fi
+ "$PYTHON_BIN" -c "import pynvim; print('   pynvim:        ' + pynvim.__version__)" 2>/dev/null || \
+    echo "   pynvim:        not found"
 
 echo
-echo -e "${GREEN}setup complete!${NC}"
-echo
-echo "neovim python features:"
-echo "  • insert-mode shortcuts: jl (lambda), jd (def), ji (import)"
-echo "  • LSP: pyright for autocomplete and diagnostics"
-echo "  • formatting: ruff (format on save enabled)"
-echo "  • REPL: ipython via iron.nvim (prefers project-local .venv ipython)"
-echo "  • per-project envs: use 'uv venv .venv' inside python projects"
-echo
-echo "restart neovim to use the updated python environment"
+echo -e "${GREEN}Setup complete!${NC}"
+echo "Restart Neovim to ensure the updated provider is active."

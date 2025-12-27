@@ -124,95 +124,181 @@ fi
     local marks = require("iron.marks")
     iron.setup(opts)
 
-    local function move_cursor_to_next_nonblank(start_line)
-      local bufnr = vim.api.nvim_get_current_buf()
-      local total = vim.api.nvim_buf_line_count(bufnr)
-      if total == 0 then
-        return
+    local function get_node_at_cursor()
+      if vim.treesitter and vim.treesitter.get_node then
+        return vim.treesitter.get_node({ bufnr = 0 })
       end
+      local ok, ts_utils = pcall(require, "nvim-treesitter.ts_utils")
+      if ok then
+        return ts_utils.get_node_at_cursor()
+      end
+      return nil
+    end
 
-      local function is_chunk_boundary(line)
-        if line == "" then
-          return false
-        end
-
-        local ft = vim.bo.filetype
-        if ft == "quarto" or ft == "qmd" or ft == "markdown" then
-          return line:match("^%s*```")
-        end
-
+    local function send_python_block()
+      if vim.bo.filetype ~= "python" then
+        return false
+      end
+      local node = get_node_at_cursor()
+      if not node then
         return false
       end
 
-      local target = math.min(math.max(start_line, 1), total)
-      for line_nr = target, total do
-        local text = vim.api.nvim_buf_get_lines(bufnr, line_nr - 1, line_nr, false)[1] or ""
-        if text:match("%S") and not is_chunk_boundary(text) then
-          local indent = text:match("^%s*") or ""
-          vim.api.nvim_win_set_cursor(0, { line_nr, #indent })
-          return
-        end
+      local function is_block(n)
+        local t = n:type()
+        return t == "function_definition" or t == "class_definition"
       end
 
-      vim.api.nvim_win_set_cursor(0, { total, 0 })
+      local target = node
+      while target and not is_block(target) do
+        target = target:parent()
+      end
+      if not target then
+        return false
+      end
+      local parent = target:parent()
+      if parent and parent:type() == "decorated_definition" then
+        target = parent
+      end
+
+      local start_row, _, end_row, end_col = target:range()
+      if end_row < start_row then
+        return false
+      end
+      local last_row = end_row
+      local end_exclusive = end_row + 1
+      if end_col == 0 and end_row > start_row then
+        last_row = end_row - 1
+        end_exclusive = end_row
+      end
+      local lines = vim.api.nvim_buf_get_lines(0, start_row, end_exclusive, false)
+      if #lines == 0 then
+        return false
+      end
+
+      local last_line = vim.api.nvim_buf_get_lines(0, last_row, last_row + 1, false)[1] or ""
+      local last_col = math.max(vim.fn.strwidth(last_line) - 1, 0)
+      marks.set({
+        from_line = start_row,
+        from_col = 0,
+        to_line = last_row,
+        to_col = last_col,
+      })
+      iron.send(nil, lines)
+      return true
     end
 
-    local function advance_after_send(fallback_start, delay)
-      -- iron.send_paragraph defers execution, so allow an optional delay before fetching marks
-      local retries = 2
-      local function move()
-        local region = marks.get()
-        if region then
-          local next_line = (region.to_line or region.from_line) + 2
-          move_cursor_to_next_nonblank(next_line)
-        elseif retries > 0 then
-          retries = retries - 1
-          vim.defer_fn(move, 60)
-          return
-        elseif fallback_start then
-          move_cursor_to_next_nonblank(fallback_start)
+    local function send_r_block()
+      if vim.bo.filetype ~= "r" then
+        return false
+      end
+      local node = get_node_at_cursor()
+      if not node then
+        return false
+      end
+
+      local function is_func(n)
+        return n:type() == "function_definition"
+      end
+
+      local target = node
+      while target and not is_func(target) do
+        target = target:parent()
+      end
+      if not target then
+        return false
+      end
+
+      local parent = target:parent()
+      if parent then
+        local pt = parent:type()
+        if pt == "binary_operator" or pt == "left_assignment" or pt == "assignment" then
+          target = parent
         end
       end
 
-      if delay and delay > 0 then
-        vim.defer_fn(move, delay)
-      else
-        move()
+      local start_row, _, end_row, end_col = target:range()
+      if end_row < start_row then
+        return false
       end
+      local last_row = end_row
+      local end_exclusive = end_row + 1
+      if end_col == 0 and end_row > start_row then
+        last_row = end_row - 1
+        end_exclusive = end_row
+      end
+      local lines = vim.api.nvim_buf_get_lines(0, start_row, end_exclusive, false)
+      if #lines == 0 then
+        return false
+      end
+
+      local last_line = vim.api.nvim_buf_get_lines(0, last_row, last_row + 1, false)[1] or ""
+      local last_col = math.max(vim.fn.strwidth(last_line) - 1, 0)
+      marks.set({
+        from_line = start_row,
+        from_col = 0,
+        to_line = last_row,
+        to_col = last_col,
+      })
+      iron.send(nil, lines)
+      return true
+    end
+
+    local function move_cursor_after_send(fallback_line)
+      local region = marks.get()
+      local next_line = fallback_line
+      if region then
+        next_line = (region.to_line or region.from_line) + 2
+      end
+
+      if not next_line then
+        return
+      end
+
+      local bufnr = vim.api.nvim_get_current_buf()
+      local total = vim.api.nvim_buf_line_count(bufnr)
+      local target = math.min(math.max(next_line, 1), total)
+      local line = vim.api.nvim_buf_get_lines(bufnr, target - 1, target, false)[1] or ""
+      local col = #(line:match("^%s*") or "")
+      vim.api.nvim_win_set_cursor(0, { target, col })
     end
 
     local function send_line_and_advance()
       local current_line = vim.api.nvim_win_get_cursor(0)[1]
       iron.send_line()
-      advance_after_send(current_line + 1, 0)
-    end
-
-    local function send_source_file()
-      -- Use source() for R scripts so the REPL sees the file just like Rscript/source does
-      local ft = vim.bo.filetype
-      if ft ~= "r" then
-        return iron.send_file()
-      end
-
-      local file = vim.api.nvim_buf_get_name(0)
-      if not file or file == "" then
-        vim.notify("iron.nvim: current buffer has no file to source", vim.log.levels.WARN)
-        return
-      end
-
-      local escaped = file:gsub("\\", "/"):gsub('"', '\\"')
-      iron.send(nil, string.format('source("%s", chdir = TRUE)', escaped))
-      move_cursor_to_next_nonblank(vim.api.nvim_win_get_cursor(0)[1] + 1)
+      move_cursor_after_send(current_line + 1)
     end
 
     local function send_paragraph_and_advance()
       local current_line = vim.api.nvim_win_get_cursor(0)[1]
+      if send_python_block() then
+        vim.defer_fn(function()
+          move_cursor_after_send(current_line + 1)
+        end, 60)
+        return
+      end
+      if send_r_block() then
+        vim.defer_fn(function()
+          move_cursor_after_send(current_line + 1)
+        end, 60)
+        return
+      end
       iron.send_paragraph()
-      advance_after_send(current_line + 1, 160)
+      vim.defer_fn(function()
+        move_cursor_after_send(current_line + 1)
+      end, 100)
     end
 
-    vim.keymap.set("n", "<leader>sf", send_source_file, { desc = "Source file in REPL", silent = true })
+    local function send_visual_and_advance()
+      local end_line = vim.fn.line("'>")
+      iron.visual_send()
+      vim.defer_fn(function()
+        move_cursor_after_send(end_line + 1)
+      end, 60)
+    end
+
     vim.keymap.set("n", "<leader>sl", send_line_and_advance, { desc = "Send line and advance", silent = true })
     vim.keymap.set("n", "<leader>sp", send_paragraph_and_advance, { desc = "Send paragraph and advance", silent = true })
+    vim.keymap.set("v", "<leader>sc", send_visual_and_advance, { desc = "Send selection and advance", silent = true })
   end,
 }

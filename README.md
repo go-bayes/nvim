@@ -12,4 +12,8 @@ Clone into `~/.config/nvim`, start Neovim, and run `:Lazy sync` once to fetch th
 - Nord stays available on `<leader>un` / `:NordTheme`.
 - TokyoNight cycles with `<leader>ut`; toggle transparency with `<leader>uT`.
 
-All theme tooling belongs to this Neovim repo—manage it with `git` inside `~/.config/nvim` rather than `yadm`. Non-Neovim dotfiles (e.g., AeroSpace) now live in your `yadm` repo instead of here.
+All theme tooling belongs to this Neovim repo—manage it with `git` inside `~/.config/nvim` rather than `yadm`.
+
+## Dotfiles
+
+Broader dotfiles—including AeroSpace at `~/.aerospace.toml`—live in the separate `yadm` repo rather than here.
