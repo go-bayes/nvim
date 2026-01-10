@@ -4,8 +4,9 @@ local pins = require("config.pins")
 
 -- system clipboard integration (explicit)
 -- use these when regular yank doesn't copy to system clipboard
-vim.keymap.set({'n', 'v'}, '<leader>y', '"+y', { noremap = true, silent = true, desc = 'Yank to system clipboard' })
-vim.keymap.set('n', '<leader>Y', '"+Y', { noremap = true, silent = true, desc = 'Yank line to system clipboard' })
+vim.keymap.set({ 'n', 'v' }, 'y', '"+y', { noremap = true, silent = true, desc = 'Yank to system clipboard' })
+vim.keymap.set({ 'n', 'v' }, '<leader>u', '"y', { noremap = true, silent = true, desc = 'Yank to unnamed register' })
+vim.keymap.set({ 'n', 'v' }, '<leader>U', '"p', { noremap = true, silent = true, desc = 'Paste from unnamed register' })
 -- System clipboard paste (after) on Shift+P
 vim.keymap.set('n', 'P', '"+p', { noremap = true, silent = true, desc = 'Paste after from system clipboard (no extra space)' })
 vim.keymap.set('v', 'P', '"_d"+p', { noremap = true, silent = true, desc = 'Paste after from system clipboard (keep clipboard)' })
@@ -54,7 +55,7 @@ vim.keymap.set('n', '<Esc>', function()
 end, { noremap = true, silent = true, expr = true, desc = 'Clear search highlight' })
 
 -- Yank/paste tweaks
-vim.keymap.set('n', 'Y', 'y$', { noremap = true, silent = true, desc = 'Yank to end of line' })
+vim.keymap.set('n', 'Y', '"+y$', { noremap = true, silent = true, desc = 'Yank to end of line (system clipboard)' })
 vim.keymap.set('v', 'p', '"_dP', { noremap = true, silent = true, desc = 'Paste without overwriting register' })
 -- Create blank lines without leaving normal mode
 vim.keymap.set('n', 'go', 'o<Esc>', { noremap = true, silent = true, desc = 'Blank line below (stay normal)' })
@@ -85,6 +86,9 @@ end, { noremap = true, silent = true, desc = 'Save file' })
 vim.keymap.set('n', '<leader>w', '<cmd>w<CR>', { noremap = true, silent = true, desc = 'Write buffer' })
 vim.keymap.set('n', '<leader>qq', '<cmd>q<CR>', { noremap = true, silent = true, desc = 'Quit window' })
 vim.keymap.set('n', '<leader>e', '<cmd>Lex 30<CR>', { noremap = true, silent = true, desc = 'Open file explorer' })
+vim.keymap.set({ 'n', 'v' }, '<leader>t', 'zt', { noremap = true, silent = true, desc = 'Scroll line to top' })
+vim.keymap.set({ 'n', 'v' }, '<leader>z', 'zz', { noremap = true, silent = true, desc = 'Center line' })
+vim.keymap.set({ 'n', 'v' }, '<leader>b', 'zb', { noremap = true, silent = true, desc = 'Scroll line to bottom' })
 -- Movement over wrapped lines (behave like screen lines)
 vim.keymap.set({ 'n', 'v' }, 'j', 'gj', { noremap = true, silent = true, desc = 'Down (wrapped)' })
 vim.keymap.set({ 'n', 'v' }, 'k', 'gk', { noremap = true, silent = true, desc = 'Up (wrapped)' })
