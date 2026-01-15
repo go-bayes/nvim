@@ -62,5 +62,8 @@ else
 end
 
 if vim.fn.exists("&guifont") == 1 then
-  vim.opt.guifont = "JetBrainsMono Nerd Font Light:h19"
+  vim.opt.guifont = "JetBrainsMono Nerd Font:h12"
 end
+
+-- config for neovide 
+-- vim.g.neovide_cursor_vfx_mode = "railgun"
