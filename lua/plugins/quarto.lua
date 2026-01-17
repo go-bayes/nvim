@@ -97,7 +97,7 @@ local function run_quarto_render(fmt, opts)
   local status = vim.v.shell_error
   if status == 0 then
     vim.notify(("Quarto render (%s) complete"):format(label), vim.log.levels.INFO, { title = "Quarto" })
-    if opts.open_html and fmt == "html" then
+    if opts.open_html and (fmt == "html" or fmt == "revealjs") then
       local target = guess_html_output(file)
       if target then
         if vim.fn.executable("open") == 1 then
@@ -184,6 +184,7 @@ return {
       { "<leader>qra", function() run_quarto_render() end, desc = "Render (default output)" },
       { "<leader>qrh", function() run_quarto_render("html", { open_html = true }) end, desc = "Render HTML (and open)" },
       { "<leader>qrp", function() run_quarto_render("pdf") end, desc = "Render PDF" },
+      { "<leader>qrs", function() run_quarto_render("revealjs", { open_html = true }) end, desc = "Render slides (revealjs)" },
       { "<leader>qrr", ":QuartoSendAbove<cr>", desc = "quarto run to cursor" },
       { "<localleader><cr>", ":QuartoSendBelow<cr>", desc = "quarto run cell" },
       { "<localleader>a", ":QuartoSendAll<cr>", desc = "quarto run all" },
