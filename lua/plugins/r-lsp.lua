@@ -48,7 +48,7 @@ return {
 
     lspconfig.r_language_server.setup({
       cmd = {
-        "R",
+        "/usr/local/bin/R",
         "--no-echo",
         "--no-restore",
         "--slave",
