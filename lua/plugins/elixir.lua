@@ -1,5 +1,5 @@
 -- Elixir LSP setup for LazyVim
--- Ensures ElixirLS is installed via mason-lspconfig and configures server settings
+-- Ensures Next LS is installed via mason-lspconfig and configures server settings
 
 return {
   -- Ensure Next LS is installed (via Mason)
@@ -14,8 +14,6 @@ return {
         end
       end
       add("nextls")
-      add("texlab")
-      add("ltex")
     end,
   },
 
@@ -26,10 +24,6 @@ return {
       opts.servers = opts.servers or {}
       opts.servers.nextls = opts.servers.nextls or {}
       opts.servers.elixirls = opts.servers.elixirls or { enabled = false }
-      opts.servers.texlab = opts.servers.texlab or {}
-      opts.servers.ltex = opts.servers.ltex or {
-        filetypes = { "tex", "plaintex", "markdown", "qmd" },
-      }
     end,
   },
 }

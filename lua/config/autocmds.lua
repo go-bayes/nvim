@@ -68,7 +68,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 -- Or remove existing autocmds by their group name (which is prefixed with `lazyvim_` for the defaults)
 -- e.g. vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
 
--- soft-wrap for markdown and quarto files
+-- soft-wrap and spell check for markdown and quarto files
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "markdown", "quarto", "rmd", "qmd" },
   callback = function()
@@ -76,6 +76,8 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.linebreak = true
     vim.opt_local.breakindent = true
     vim.opt_local.colorcolumn = ""
+    vim.opt_local.spell = true
+    vim.opt_local.spelllang = "en_nz,en_gb"
   end,
 })
 
