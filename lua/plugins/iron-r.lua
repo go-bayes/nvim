@@ -4,7 +4,7 @@
 return {
   "Vigemus/iron.nvim",
   main = "iron.core",
-  ft = { "r", "rmd", "quarto", "qmd", "python" },
+  ft = { "r", "rmd", "quarto", "qmd", "python", "mojo" },
   cmd = { "IronRepl", "IronReplHere", "IronRestart", "IronSend", "IronFocus", "IronHide" },
   keys = {
     { "<space>rs", "<cmd>IronRepl<cr>", desc = "Start REPL" },
@@ -67,6 +67,10 @@ else
   exec python3
 fi
 ]] },
+            format = require("iron.fts.common").bracketed_paste,
+          },
+          mojo = {
+            command = { "mojo", "repl" },
             format = require("iron.fts.common").bracketed_paste,
           },
           quarto = {
