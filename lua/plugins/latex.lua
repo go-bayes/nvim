@@ -49,6 +49,22 @@ return {
           "-synctex=1",
         },
       }
+
+      local default_bib = "/Users/joseph/GIT/templates/bib/references.bib"
+      local uv = vim.uv or vim.loop
+
+      vim.api.nvim_create_autocmd("FileType", {
+        group = vim.api.nvim_create_augroup("vimtex_default_bib", { clear = true }),
+        pattern = { "tex", "plaintex", "latex" },
+        callback = function()
+          local bibs = vim.b.vimtex_bibliographies
+          if bibs == nil or #bibs == 0 then
+            if uv and uv.fs_stat(default_bib) then
+              vim.b.vimtex_bibliographies = { default_bib }
+            end
+          end
+        end,
+      })
     end,
   },
 }
