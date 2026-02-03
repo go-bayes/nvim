@@ -49,6 +49,7 @@ return {
           "-pdf",
           "-interaction=nonstopmode",
           "-synctex=1",
+          "-g",
           "-f",
         },
       }
