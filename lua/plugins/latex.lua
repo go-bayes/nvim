@@ -44,7 +44,7 @@ return {
       vim.g.vimtex_compiler_latexmk = {
         build_dir = "build",
         callback = 1,
-        continuous = 1,
+        continuous = 0,
         executable = "latexmk",
         options = {
           "-pdf",
