@@ -42,7 +42,6 @@ return {
       vim.g.vimtex_compiler_method = "latexmk"
       vim.g.vimtex_quickfix_mode = 0
       vim.g.vimtex_compiler_latexmk = {
-        build_dir = "build",
         callback = 1,
         continuous = 0,
         executable = "latexmk",
@@ -50,6 +49,7 @@ return {
           "-pdf",
           "-interaction=nonstopmode",
           "-synctex=1",
+          "-f",
         },
       }
 
