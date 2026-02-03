@@ -33,6 +33,9 @@ return {
     keys = {
       { "<leader>ll", "<cmd>VimtexCompile<cr>", desc = "Vimtex compile" },
       { "<leader>lv", "<cmd>VimtexView<cr>", desc = "Vimtex view PDF" },
+      { "<leader>lc", "<cmd>VimtexClean<cr>", desc = "Vimtex clean aux files" },
+      { "<leader>lC", "<cmd>VimtexClean!<cr>", desc = "Vimtex full clean" },
+      { "<leader>lr", "<cmd>VimtexClean<cr><cmd>VimtexCompile<cr>", desc = "Clean and recompile" },
     },
     init = function()
       vim.g.vimtex_view_method = "skim"
